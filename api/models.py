@@ -1,0 +1,53 @@
+from django.db import models
+from main.models import MyUser
+
+class Event(models.Model):
+
+    CATEGORYS = [
+        ('Official', (
+                ('Company Meeting', 'Company Meeting'),
+                ('Exhibition', 'Exhibition'),
+                ('Concert', 'Concert'),
+                ('Gala','Gala'),
+                ('Bal','Bal'),
+                ('March','March'),
+                ('Show','Show'),
+                ('Others','Others'),
+            )
+        ),
+        ('Unofficial', (
+                ('Birthday Party', 'Birthday Party'),
+                ('Boozing', 'Boozing'),
+                ('House Party', 'House Party'),
+                ('Others','Others'),
+                ('Celebration', 'Celebration'),
+                ('Family Meeting', 'Family Meeting'),
+                ('Others','Others'),
+            )
+        ),
+    ]
+
+    name = models.CharField(verbose_name="Name",max_length=50)
+    start_date_time = models.DateTimeField("Start time",null=True)
+    end_date_time = models.DateTimeField("End time  ",null=True)
+    organiser = models.ForeignKey(MyUser, on_delete=models.CASCADE, null=True)
+    participants = models.ManyToManyField(MyUser, related_name='participants', blank=True)
+    location = models.CharField("Location  ", max_length=60, null=True)
+    category = models.CharField("Category  ", max_length=50, choices=CATEGORYS, null=True)
+    is_open = models.BooleanField("Is open",null=True)
+    is_free = models.BooleanField("Is free",null=True)
+    description = models.TextField("Description",max_length=500, null=True)
+
+    def __str__(self):
+        return self.name
+
+
+class Invitation(models.Model):
+    inviting = models.ForeignKey(MyUser,on_delete=models.CASCADE, null=True, related_name='inviting')
+    invited  = models.ForeignKey(MyUser,on_delete=models.CASCADE, null=True, related_name='invited')
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, null=True)
+    send_date = models.DateField(auto_now_add=True, null=True)
+
+    def __str__(self):
+        return f'{self.inviting} - {self.invited} - {self.event}'
+

@@ -1,0 +1,109 @@
+{% extends 'main.html' %}
+
+{% block content %}
+
+<main>
+    <div class="d-flex justify-content-center">
+        <div class="card mt-5 rounded border-4" style="width:400px; background-color:rgb(50, 120, 199)">
+            <div class="card-body">
+
+                <div class="container h-100">
+                    <div class="d-flex justify-content-center h-100">
+                        <div class="user_card">
+
+                            {% if page == 'register' %}
+
+                            <div class="d-flex justify-content-center">
+                                <h3 class="text-white fs-1 my-3 text-nowrap">REGISTER ACCOUNT</h3>
+                            </div>
+                            <div class="d-flex justify-content-center">
+                                <form method="POST" action="">
+                                    {% csrf_token %}
+                                    <div class="input-group mb-3 justify-content-center">
+                                        <span class="input-group-text bg-warning text-dark"><i class="fas fa-user"></i></span>
+                                        {{form.username}}
+                                    </div>
+                                    <div class="input-group mb-2 justify-content-center">
+                                        <span class="input-group-text bg-warning text-dark"><i class="fas fa-envelope-square"></i></span>
+                                        {{form.email}}
+                                    </div>
+                                    <div class="input-group mb-2 justify-content-center">
+                                        <span class="input-group-text bg-warning text-dark"> 	
+                                            &#9742;</span>
+                                        {{form.phone_number}}
+                                    </div>
+                                    <div class="input-group mb-2 justify-content-center">
+                                        <span class="input-group-text bg-warning text-dark"><i class="fas fa-key"></i></span>
+                                        {{form.password1}}
+                                    </div>
+                                    <div class="input-group mb-2 justify-content-center">
+                                        <span class="input-group-text bg-warning text-dark"><i class="fas fa-key"></i></span>
+                                        {{form.password2}}
+                                    </div>
+                                    {% for error in form.username.errors %}
+                                        {{error}}
+                                    {% endfor %}
+                                    {% for error in form.email.errors %}
+                                    {{error}}
+                                    {% endfor %}
+                                    {% for error in form.password1.errors %}
+                                    {{error}}
+                                    {% endfor %}
+                                    {% for error in form.password2.errors %}
+                                    {{error}}
+                                    {% endfor %}
+            
+                                    <div class="d-flex justify-content-center mt-3 login_container">
+                                        <input class="btn btn-lg bg-warning px-5" type="submit" value="Register Account">
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="mt-4">
+                                <div class="d-flex justify-content-center links text-white">
+                                    <a class='text-decoration-none text-white' href="{% url 'login' %}">Already have an account?</a>
+                                </div>
+                            </div>
+
+                            {% else %}
+
+                            <div class="d-flex justify-content-center">
+                                <h3 class="text-white fs-1 my-3 text-nowrap">LOGIN</h3>
+                            </div>
+                            <div class="d-flex justify-content-center">
+                                <form method="POST" action="">
+                                    {% csrf_token %}
+                                    <div class="input-group mb-3">
+                                        <span class="input-group-text bg-warning text-dark"><i class="fas fa-envelope-square"></i></span>
+                                        <input type="email" name="email" placeholder="Email..." class="form-control">
+                                    </div>
+                                    <div class="input-group mb-2">
+                                        <span class="input-group-text bg-warning text-dark"><i class="fas fa-key"></i></span>
+                                        <input type="password" name="password" placeholder="Password..." class="form-control">
+                                    </div>
+
+                                    {% for message in messages %}
+                                        {{message}}
+                                    {% endfor %}
+            
+                                    <div class="d-flex justify-content-center mt-3 login_container">
+                                        <input class="btn btn-lg bg-warning px-5" type="submit" value="Login">
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="mt-4">
+                                <div class="d-flex justify-content-center links text-white">
+                                    <a class='text-decoration-none text-white' href="{% url 'register' %}">Don't have an account?</a>
+                                </div>
+                            </div>
+
+                            {% endif %}
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>   
+</main>
+
+{% endblock content %}

@@ -1,0 +1,25 @@
+{% extends 'main.html' %}
+
+{% block content %}
+
+<main>
+    <div class="d-flex justify-content-center">
+        <div class="card card-body my-3 mx-5">
+            <div class="row">
+                <div class="col-sm"></div>
+                <div class="col-sm d-grid">
+                    {% if error == '404' %}
+                    <h3 class="fw-bold">Requested resource wasn't found</h3>
+                    <p>Check if you typed the name of page properly or contact our team.</p>
+                    <a class="btn btn-warning mt-3" href="{% url 'home' %}">Contact us now</a>
+                    {% elif error == '500' %}
+                    <h3 class="fw-bold">Sorry, unxpected error has occured</h3>
+                    <p>Our team is already working to fix all problems. Be back soon.</p>
+                    {% endif %}
+                </div>
+                <div class="col-sm"></div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock content %}

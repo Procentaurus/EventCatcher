@@ -1,0 +1,47 @@
+{% load static %}
+<section>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow fixed-top p-1">
+        <div class="container">
+        <a class="navbar-brand me-2" href="#">
+            <img id="logoimg" src="{% static 'images/logo.jpg' %}" alt="LOGO" id="logo">
+        </a>
+        <a class="navbar-brand" href="#"><span id="logofont">EventCatcher</span></a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item mx-3 mt-2">
+                    <a class="nav-link" href="{% url 'home' %}"><span class="fw-bold fs-5">Home</span></a>
+                </li>
+                <li class="nav-item mx-3  mt-2">
+                    <a class="nav-link" href="{% url 'eventshowdown' %}"><span class="fw-bold fs-5">Events</span></a>
+                </li>
+                <li class="nav-item mx-3  mt-2">
+                    <a class="nav-link" href="#"><span class="fw-bold fs-5">How it works</span></a>
+                </li>
+                <li class="nav-item mx-3  mt-2">
+                    <a class="nav-link" href="#"><span class="fw-bold fs-5">Contact</span></a>
+                </li>
+                {% if request.user.is_authenticated %}
+                <li class="nav-item mx-3">
+                    <a class="nav-link" href="{% url 'userprofile' request.user.id %}">
+                        <img class="avatar" src="{{ request.user.image.url }}">
+                        <span class="text-nowrap fs-5 me-4 fw-bold">@{{request.user}}</span>
+                    </a>
+                </li>
+                {% else %}
+                <li class="nav-item mx-3">
+                    <a class="nav-link" href="{% url 'login' %}">
+                        <div class="d-flex">
+                            <img class='avatar' src="{% static 'images/model.png' %}">
+                            <span class="fw-bold fs-5 mt-2 ms-1">Login</span>
+                        </div>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+    <div style="height:86px;"></div>
+</section>

@@ -1,0 +1,47 @@
+{% extends 'main.html' %}
+{% load static %}
+
+{% block content %}
+
+<main>
+    <div class="d-flex justify-content-center my-5">
+        <div class="card mt-5 rounded border-4" style="width:700px; background-color:rgb(53, 53, 53)">
+            <div class="card-body">
+                <h1 class="text-center fw-bold text-white my-4"> Add your new event</h1>
+                <form>
+                    {% csrf_token %}
+                    {% for field in form %}
+                        <div class="row d-flex">
+                            <div class="col-sm-1">
+                            </div>
+                            <div class="col-sm-10">
+                                <div class="input-group my-2">
+                                    {% if field.name == 'is_open' or field.name == 'is_free' %}
+                                    <span class="input-group-text bg-warning fs-3 me-5 text-dark w-20">{{field.label_tag}}</span>
+                                    {{field}}
+                                    {% else %}
+                                    <span class="input-group-text bg-warning fs-3 text-dark">{{field.label_tag}}</span>
+                                    {{field}}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-sm-1">
+                            </div>
+                        </div>
+                    {% endfor %}
+                    <ul class="list-group list-group-flush mx-5">
+                        <li id="emptyFields" class="list-group-item text-danger fw-bold list-group-item-danger rounded mb-1" hidden>You haven't filled all fields.</li>
+                        <li id="badDate" class="list-group-item text-danger fw-bold list-group-item-danger rounded" hidden>End date can't be earlier than start date.</li>
+                    </ul>
+                </form>
+                <div class="d-grid mt-3">
+                    <input id="request" class="btn btn-lg btn-outline-light px-5" type="submit" value="Add new event">
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+<script type="text/javascript" src="{% static 'js/major/formManager.js' %}"></script>
+<script src="{% static 'js/for_templates/addEvent.js' %}" type="text/javascript"></script>
+
+{% endblock content %}

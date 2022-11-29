@@ -1,0 +1,69 @@
+{% extends 'main.html' %}
+{% load static %}
+
+{% block content %}
+
+<main>
+	<div class="row mx-3">
+		<div class="col-md-4">
+			<div class="card card-body">
+				<a class="btn btn-warning" href="{% url 'home' %}"> &#8592; Back to Profile</a>
+				<hr>
+				<h3 style="text-align: center">Account Settings</h3>
+				<hr>
+			
+			</div>
+		</div>
+		<div class="col-md-8">
+			<div class="card card-body">
+				
+				<form method="POST" action="" enctype="multipart/form-data">
+					{% csrf_token %}
+
+					{% for field in form %}
+					<div class="mb-3">
+						<span class="fw-bold fs-5">{{field.label}}</span>
+						<br>
+						{{field}}
+					</div>
+					{% endfor %}
+					<div class="d-grid">
+					<input class="btn btn-warning" type="submit" name="Update Information" value="Update data">
+					</div>
+				</form>
+				{% for message in messages %}
+					{% if message.level == DEFAULT_MESSAGE_LEVELS.INFO %}
+					<div class="alert alert-success alert-dismissible fade show mt-2" role="alert">
+						<span class="fw-bold">{{message}}</span>
+						<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+					</div>
+					{% else %}
+					<div class="alert alert-warning alert-dismissible fade show mt-2" role="alert">
+						<span class="fw-bold">{{message}}</span>
+						<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+					</div>
+					{% endif %}
+				{% endfor %}
+			</div>
+		</div>
+	</div>
+	<div class="row mx-3 my-5">
+		<div class="card card-body">
+			<div class="d-flex flex-row bd-highlight justify-content-center">
+				<div class="col-sm-3">
+					<div class="p-1 bd-highlight d-grid">
+						<a class="btn btn-warning mx-2 p-2" href="#">&#8677;&nbsp;&nbsp;Change your password&nbsp;&nbsp;&#8676;</a>
+					</div>
+				</div>
+				<div class="col-sm-3">
+					<div class="p-1 bd-highlight d-grid">Flex item 2</div>
+				</div>
+				<div class="col-sm-3">
+					<div class="p-1 bd-highlight d-grid">Flex item 3</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</main>
+
+{% endblock content %}

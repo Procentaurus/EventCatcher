@@ -1,0 +1,132 @@
+{% extends 'main.html' %}
+{% load static %}
+
+{% block content %}
+
+<main>
+    <div class="row mx-4">
+        <div class="row mt-3">
+            <div class="col-lg-2">
+                <div class="row mb-2">
+                    <div class="col-lg-12 my-2">
+                        <div class="card card-body bg-dark shadow">
+                            {% if user == request.user %}
+                                <h3 class="fw-bold text-center mt-2 text-light">Your friend requests :</h3>
+                                {% for friendRequest in friendRequests %}
+                                    <div class="text-center border border-2 rounded border-light my-1">
+                                        <a class="nav-link p-1" href="{% url 'userprofile' friendRequest.from_user.id %}">
+                                            <img class="avatar" src="{{ friendRequest.from_user.image.url }}">
+                                            <span class="text-nowrap fs-5 ms-1 fw-bold text-light">@{{friendRequest.from_user}}</span>
+                                        </a>
+                                        <a class="btn btn-success mb-1 px-3" href="{% url 'acceptfriendrequest' friendRequest.id %}" role="button">Accept</a>
+                                        <a class="btn btn-danger mb-1 px-3" href="{% url 'rejectfriendrequest' friendRequest.id %}" role="button">Reject</a>
+                                    </div>
+                                {% endfor %}
+                            {% elif  user != request.user and request.user not in user.friends.all and friendRequest is not None  %}
+                            <div class="d-grid">
+                                <button type="button" class="btn btn-outline-info shadow text-decoration-none text-light" href="#">
+                                    <span class="fw-bold fs-4">You send/were sent invitation already</span>
+                                </button>
+                            </div>
+                            {% elif user != request.user and request.user not in user.friends.all %}
+                                <form method="POST" action="{% url 'sendfriendrequest' %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="username" value="{{user.username}}">
+                                    <div class="d-grid">
+                                        <button type="submit" class="btn btn-outline-info shadow text-decoration-none text-light" href="{% url 'usersettings' user.id %}">
+                                            <span class="fw-bold fs-4">Add to friends</span>
+                                        </button>
+                                    </div>
+                                </form>
+                            {% else %}
+                                <div class="d-grid">
+                                    <button type="button" class="btn btn-outline-success shadow text-decoration-none text-light" href="#">
+                                        <span class="fw-bold fs-4">You are friends already</span>
+                                    </button>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div clas="row">
+                    <div class="col-lg-12 mb-4">
+                        <div class="card card-body p-2 bg-dark shadow">
+                            {% if user.id == request.user.id %}
+                            <div class="d-grid">
+                                <a href="{% url 'lookforfriends' request.user.id %}" class="btn btn-lg btn-outline-light" type="button">&#129309; Look for friends</a>
+                            </div>
+                            {% endif %}
+                            <h3 class="fw-bold text-center mt-2 text-light">Friends :</h3>
+                            {% for friend in friends %}
+                                <div class="text-center bg-light rounded my-1">
+                                    <a class="nav-link p-1" href="{% url 'userprofile' friend.id %}">
+                                        <img class="avatar" src="{{ friend.image.url }}">
+                                        <span class="text-nowrap fs-4 me-4 ms-2 fw-bold text-dark">@{{friend}}</span>
+                                    </a>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <div class="col-lg-8">
+                <h1 id="username" class="display-1 fw-bold text-center">@{{user.username}}</h1>
+                <div class="d-flex mt-3"><img src="{{user.image.url}}" class="avatar_max"></div>
+                <div class="row mt-3 mb-2">
+                    <div class="col-sm-4">
+                        <h3 class="text-center fw-bold">Last time online:</h3>
+                        <h5 class="text-center fw-bold">{{user.last_login}}</h5>
+                    </div>
+                    <div class="col-sm-4">
+                        <h3 class="text-center fw-bold">On EventPlanner since:</h3>
+                        <h5 class="text-center fw-bold">{{user.date_joined}}</h5>
+                    </div>
+                    <div class="col-sm-4">
+                        <h3 class="text-center fw-bold">Email:</h3>
+                        {% if user.hide_email or user == request.user %}
+                        <h5 class="text-center fw-bold">{{user.email}}</h5>
+                        {% else %}
+                        <h5 class="text-center fw-bold">*************</h5>
+                        {% endif %}
+                    </div>
+                </div>
+                <h1 class=" display-5 fw-bold mt-2 text-dark mt-5">&nbsp;Organised events: </h1>
+                <div id="destination" class="mx-2 mt-2"></div>
+            </div>
+
+
+
+            <div class="col-lg-2">
+                {% if user.id == request.user.id %}
+                <div class="row mb-2 mt-2">
+                    <div class="col-lg-12 d-grid gap-2 card card-body bg-dark">
+                        <a type="button" class="btn btn-danger border-2 border-dark shadow text-decoration-none text-dark" href="{% url 'logout' %}">
+                            <span class="fw-bold fs-4">Logout</span>
+                        </a>
+                        <a type="button" class="btn btn-info border-2 border-dark shadow text-decoration-none text-dark" href="{% url 'usersettings' user.id %}">
+                            <span class="fw-bold fs-4">Account settings</span>
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+                <div clas="row mb-2">
+                    <div class="col-lg-12">
+                        Your invitations for events
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        Your upcoming events
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script src="{% static 'js/for_templates/userprofile.js' %}" type="text/javascript"></script>
+
+{% endblock content %}

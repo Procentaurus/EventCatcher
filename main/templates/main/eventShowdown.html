@@ -1,0 +1,66 @@
+{% extends 'main.html' %}
+{% load static %}
+{% block content %}
+
+<section>
+    <div class="row mx-4 p-2" >
+        <div class="col-lg-10 shadow">
+            <div class="input-group mt-3">
+                <input type="text" class="form-control text-white bg-dark" placeholder="Name..." aria-label="Name..." id="id_name">
+                <input type="text" class="form-control text-white bg-dark" placeholder="Location..." aria-label="Location..." id="id_location">
+                <input type="text" class="form-control text-white bg-dark"id="id_description" hidden>
+                <select class="form-control text-white bg-dark" name="category" style="max-width:150px;" id="id_category">
+                    <option value="" selected>Category...</option>
+                    <optgroup label="Official">
+                        <option value="Company Meeting"  >Company Meeting</option>
+                        <option value="Exhibition"  >Exhibition</option>
+                        <option value="Concert"  >Concert</option>
+                        <option value="Gala"  >Gala</option>
+                        <option value="Bal"  >Bal</option>
+                        <option value="March"  >March</option>
+                        <option value="Show"  >Show</option>
+                        <option value="Others"  >Others</option>
+                    </optgroup>
+                    <optgroup label="Unofficial">
+                        <option value="Birthday Party"  >Birthday Party</option>
+                        <option value="Boozing"  >Boozing</option>
+                        <option value="House Party"  >House Party</option>       
+                        <option value="Others"  >Others</option>      
+                        <option value="Celebration"  >Celebration</option> 
+                        <option value="Family Meeting"  >Family Meeting</option>
+                    </optgroup>
+                </select>
+
+                <span class="input-group-text">Later than:</span>
+                <input type="datetime-local" class="form-control text-white bg-dark" style="max-width:180px;" id="id_start_date_time">
+                <span class="input-group-text">Earlier than:</span>
+                <input type="datetime-local" class="form-control text-white bg-dark" style="max-width:180px;" id="id_end_date_time">
+                <span class="input-group-text">Is open:</span>
+                <div class="input-group-text">
+                    <input class="form-check-input mt-0" type="checkbox" name="id_is_open" id="id_is_open" value="True">
+                </div>
+                <span class="input-group-text">Is free:</span>
+                <div class="input-group-text">
+                    <input class="form-check-input mt-0" type="checkbox" name="id_is_free" id="id_is_free" value="True">
+                </div>
+                <button class="btn btn-dark" type="button" id="button-addon2" onclick="filterData()">&#128269; Szukaj</button>
+            </div>
+        </div>
+        <div class="col-lg-2 shadow">
+            <div class="d-grid p-2">
+                <a href="{% url 'addEvent' %}" class="btn btn-dark btn-lg" role="button">&#10133;&nbsp;Add new event</a>
+            </div>
+        </div>
+    </div>
+    <div class="row mx-4 p-2">
+        <div class="col-lg-12">
+            <ul id="destination" class="list-group">
+
+            </ul>
+        </div>
+    </div>
+</section>
+<script type="text/javascript" src="{% static 'js/major/formManager.js' %}"></script>
+<script src="{% static 'js/for_templates/eventShowdown.js' %}" type="text/javascript"></script>
+
+{% endblock content %}
