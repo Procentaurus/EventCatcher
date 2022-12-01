@@ -56,6 +56,7 @@ body{
     max-height:200px;
     margin: 0 auto;
     border-radius: 35%;
+    position: relative;
 }
 
 .layout__box {
@@ -68,3 +69,9 @@ body{
     margin-bottom: 35px;
 }
   
+
+#myBadge {
+    position: absolute;
+    top: 42%;
+    left: 52%;
+  }

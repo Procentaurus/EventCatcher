@@ -3,18 +3,39 @@ takeBegginingData();
 function takeBegginingData(){
     var destination = document.getElementById('destination');
     var url = 'http://127.0.0.1:8000/api/events/';
+    try{
+        var username = document.getElementById("navusername").innerText.slice(1);
+    }
+    catch(err){
+        username = '';
+    }
+
 
     fetch(url)
     .then((resp) => resp.json())
     .then(function(data){
         var datalist = data
         for(var i in datalist){
+
+            var myBadge;
+
+            if(datalist[i].organiser.username == username){
+                myBadge = `<span class="badge rounded-pill bg-info position-absolute top-0 end-0 mt-1 me-1 fs-5 text-dark">Your event</span>`
+            }
+            for(let user of datalist[i].organiser.friends){
+                if(user.username == username){
+                    myBadge = `<span class="badge rounded-pill bg-success position-absolute top-0 end-0 mt-1 me-1 fs-5 text-dark">Your friend's event</span>`;
+                    break;
+                }
+            }
+
             var item = `
                 <li id="data-row-${i}" class="list-group-item bg-dark shadow mb-4 rounded-3">
                     <div class="row mx-1">
                         <div class="col-sm-11 my-4">
                             <h1 class="fw-bold text-white">${datalist[i].name}</h1>
-                            <h4 class="fw-bold mt-0"><a href="#" class="text-decoration-none text-light">@${datalist[i].organiser}</a></h4>
+                            <h4 class="fw-bold mt-0"><a href="#" class="text-decoration-none text-light">@${datalist[i].organiser.username}</a></h4>
+                            ${myBadge}
                         </div>
                         <div class="col-sm-3 mt-1 me-2">
                             <div class="my_card">
@@ -39,12 +60,23 @@ function takeBegginingData(){
                                 <div>&nbsp;&nbsp;&nbsp;<span class="text-light">${datalist[i].description}</span></div>
                             </div>
                         </div>
+                        <div class="col-sm-5 me-2">
+                            <span class="text-white position-absolute bottom-0 end-0 fw-bold mb-2 me-4">Number of participants :&nbsp;&nbsp;${returnNumberOfParticipants(datalist[i].participants)} </span>
+                        </div>
                     </div>
                 </li>
             `
             destination.innerHTML += item
         }
     })
+}
+
+function returnNumberOfParticipants(datalist){
+    var sum = 0;
+    for(var i in datalist){
+        sum += 1;
+    }
+    return sum;
 }
 
 function filterData(){

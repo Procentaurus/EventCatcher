@@ -27,7 +27,7 @@
                 <li class="nav-item mx-3">
                     <a class="nav-link" href="{% url 'userprofile' request.user.id %}">
                         <img class="avatar" src="{{ request.user.image.url }}">
-                        <span class="text-nowrap fs-5 me-4 fw-bold">@{{request.user}}</span>
+                        <span id="navusername" class="text-nowrap fs-5 me-4 fw-bold">@{{request.user}}</span>
                     </a>
                 </li>
                 {% else %}

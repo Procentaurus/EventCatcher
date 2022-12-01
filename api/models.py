@@ -19,13 +19,15 @@ class Event(models.Model):
                 ('Birthday Party', 'Birthday Party'),
                 ('Boozing', 'Boozing'),
                 ('House Party', 'House Party'),
-                ('Others','Others'),
                 ('Celebration', 'Celebration'),
                 ('Family Meeting', 'Family Meeting'),
                 ('Others','Others'),
             )
         ),
     ]
+
+    def event_directory_path(instance, filename):
+        return 'eventImages/event_{0}/{1}'.format(instance.id, filename)
 
     name = models.CharField(verbose_name="Name",max_length=50)
     start_date_time = models.DateTimeField("Start time",null=True)
@@ -37,6 +39,7 @@ class Event(models.Model):
     is_open = models.BooleanField("Is open",null=True)
     is_free = models.BooleanField("Is free",null=True)
     description = models.TextField("Description",max_length=500, null=True)
+    #image = models.ImageField(null=True, blank=True, upload_to=event_directory_path)
 
     def __str__(self):
         return self.name

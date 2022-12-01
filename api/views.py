@@ -48,7 +48,9 @@ class EventList(mixins.ListModelMixin,mixins.CreateModelMixin,generics.GenericAP
         user = request.user
         serializer = EventSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(organiser=user)
+            event = serializer.save(organiser=user)
+            event.participants.add(user)
+
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
