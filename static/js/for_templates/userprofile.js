@@ -3,9 +3,11 @@ enableChangingAvatar();
 
 function searchUserEvents(){
     var destination = document.getElementById('destination');
-    var username = document.getElementById("username").innerText;
-    var username_ready = username.slice(1);
-    var url = `http://127.0.0.1:8000/api/events?organiser=${username_ready}`;
+    var usernamePage = document.getElementById("username").innerText;
+    var usernameUsing = document.getElementById("navusername").innerText;
+    var usernamePage_ready = usernamePage.slice(1);
+    var usernameUsing_ready = usernameUsing.slice(1);
+    var url = `http://127.0.0.1:8000/api/events?organiser=${usernamePage_ready}`;
 
     fetch(url)
     .then((resp) => resp.json())
@@ -15,11 +17,11 @@ function searchUserEvents(){
         for(var i in datalist){
             var myBadge;
 
-            if(datalist[i].organiser.username == username_ready){
+            if(datalist[i].organiser.username == usernameUsing_ready){
                 myBadge = `<span class="badge rounded-pill bg-info position-absolute top-0 end-0 mt-1 me-1 fs-5 text-dark">Your event</span>`
             }
             for(let user of datalist[i].organiser.friends){
-                if(user.username == username_ready){
+                if(user.username == usernameUsing_ready){
                     myBadge = `<span class="badge rounded-pill bg-success position-absolute top-0 end-0 mt-1 me-1 fs-5 text-dark">Your friend's event</span>`;
                     break;
                 }

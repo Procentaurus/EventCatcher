@@ -11,6 +11,7 @@ from .forms import *
 from api.forms import *
 from .decorators import *
 from .models import *
+from .functions import *
 
 def home(request):
     return render(request, 'main/home.html')
@@ -81,9 +82,20 @@ def addEvent(request):
 
 @unauthenticatedUser
 def userSettings(request):
-    form = UserCreationForm()
+    user = request.user
+    form = SettingsForm(instance=user)
 
-    context = {'form':form}
+    if request.method =='POST':
+        form = SettingsForm(request.POST, instance=user)
+        if form.is_valid():
+            form.save()
+            messages.info(request, "Your data has been updated successfully")
+        else:
+            messages.error(request, "Some error occured.")
+    context = {
+        'user':user,
+        'form':form,
+    }
     return render(request,'main/userSettings.html', context)
 
 @unauthenticatedUser
@@ -91,6 +103,7 @@ def userProfile(request, pk):
     user = MyUser.objects.get(pk=pk)
     friendRequests = FriendRequest.objects.filter(to_user=user)
     friends = user.friends.all()
+    form1 = AvatarForm()
 
     # sprawdzenie, czy któryś z użytkowników nie wysłał już zaproszenia do drugiego
     friendRequest = None
@@ -107,6 +120,7 @@ def userProfile(request, pk):
         'friends': friends,
         'user': user,
         'friendRequest': friendRequest,
+        'avatarForm': form1,
     }
     return render(request, 'main/userProfile.html', context)
 
@@ -181,3 +195,16 @@ def lookForFriends(request, pk):
         'friendsForFriends':friendsForFriends[:6],
     }
     return render(request,'main/lookforfriends.html', context)
+
+def updateAvatar(request, pk):
+    user = MyUser.objects.get(id=pk)
+    picture = user.image
+
+    if request.method == 'POST':
+        form = AvatarForm(request.POST,request.FILES, instance=user)
+        if form.is_valid():
+            form.save()
+        if user.image != picture:
+            deleteFile(picture, user.id)
+    
+    return redirect(request.META['HTTP_REFERER'])

@@ -10,7 +10,10 @@ function getData(){
         document.getElementById('id_description').value,
     ]
     if(myArray[5] != "" ) myArray[5] = "True";
+    else myArray[5] = "False";
     if(myArray[6] != "" ) myArray[6] = "True";
+    else myArray[6] = "False";
+    
     return myArray
 }
 

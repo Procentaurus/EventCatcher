@@ -71,14 +71,6 @@ function takeBegginingData(){
     })
 }
 
-function returnNumberOfParticipants(datalist){
-    var sum = 0;
-    for(var i in datalist){
-        sum += 1;
-    }
-    return sum;
-}
-
 function filterData(){
     var destination = document.getElementById('destination');
     const datax = collectForEvent();

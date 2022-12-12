@@ -28,3 +28,31 @@ class CreateUserForm(UserCreationForm):
                         'required':'True'
                 }),
         }
+
+class AvatarForm(forms.ModelForm):
+    image = forms.ImageField(required=True, widget=forms.FileInput(attrs={'class':"form-control rounded me-5", 'id':"inputGroupFile01"}))
+    class Meta:
+        model = MyUser
+        fields = ['image']
+
+class SettingsForm(forms.ModelForm):
+     class Meta:
+        model = MyUser
+        fields = ['username', 'phone_number','hide_mail']
+        widgets = {
+            'hide_mail': forms.CheckboxInput(
+                attrs={
+                    'type': 'checkbox',
+                    'class': 'mb-4',
+                }),
+            'username': forms.TextInput(attrs={
+                        'class':'form-control',
+                        'placeholder':'Username..',
+                        'required':'True'
+                }),
+            'phone_number': forms.NumberInput(attrs={
+                        'class':'form-control',
+                        'placeholder':'Phone number..',
+                        'required':'True'
+                }),
+        }

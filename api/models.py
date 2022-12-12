@@ -39,7 +39,7 @@ class Event(models.Model):
     is_open = models.BooleanField("Is open",null=True)
     is_free = models.BooleanField("Is free",null=True)
     description = models.TextField("Description",max_length=500, null=True)
-    #image = models.ImageField(null=True, blank=True, upload_to=event_directory_path)
+    image = models.ImageField(null=True, blank=True, upload_to=event_directory_path)
 
     def __str__(self):
         return self.name
@@ -54,3 +54,18 @@ class Invitation(models.Model):
     def __str__(self):
         return f'{self.inviting} - {self.invited} - {self.event}'
 
+class Message(models.Model):
+    user = models.ForeignKey(MyUser, on_delete=models.CASCADE)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE)
+    body = models.TextField()
+    updated = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['updated', 'created']
+
+    def __str__(self):
+        if len(self.body) > 100:
+            return self.body[0:100]+" ..."
+        else:
+            return self.body

@@ -12,13 +12,15 @@ urlpatterns = [
     path('addEvent/', views.addEvent, name='addEvent'),
     path('eventshowdown/', views.eventShowdown, name='eventshowdown'),
 
-    path('usersettings/<int:pk>/', views.userSettings, name='usersettings'),
+    path('usersettings/', views.userSettings, name='usersettings'),
     path('userprofile/<int:pk>/', views.userProfile, name='userprofile'),
+    path('updateavatar/<int:pk>/', views.updateAvatar, name='updateavatar'),
 
     path('acceptfriendrequest/<int:pk>/', views.acceptFriendRequest, name='acceptfriendrequest'),
     path('rejectfriendrequest/<int:pk>/', views.rejectFriendRequest, name='rejectfriendrequest'),
     path('sendfriendrequest/', views.sendFriendRequest, name='sendfriendrequest'),
 
     path('lookforfriends/<int:pk>/', views.lookForFriends, name='lookforfriends'),
+
 
 ]

@@ -33,7 +33,7 @@
                                     {% csrf_token %}
                                     <input type="hidden" name="username" value="{{user.username}}">
                                     <div class="d-grid">
-                                        <button type="submit" class="btn btn-outline-info shadow text-decoration-none text-light" href="{% url 'usersettings' user.id %}">
+                                        <button type="submit" class="btn btn-outline-info shadow text-decoration-none text-light" href="{% url 'usersettings'%}">
                                             <span class="fw-bold fs-4">Add to friends</span>
                                         </button>
                                     </div>
@@ -76,7 +76,9 @@
                 <h1 id="username" class="display-1 fw-bold text-center">@{{user.username}}</h1>
                 <div class="d-flex mt-3">
                     <img src="{{user.image.url}}" class="avatar_max">
+                    {% if request.user == user %}
                     <button type="button" id="myBadge" class="badge rounded-pill bg-light p-2 fs-2">&#128247;</button>
+                    {% endif %}
                 </div>
                 <div class="row mt-3 mb-2">
                     <div class="col-sm-4">
@@ -89,7 +91,7 @@
                     </div>
                     <div class="col-sm-4">
                         <h3 class="text-center fw-bold">Email:</h3>
-                        {% if user.hide_email or user == request.user %}
+                        {% if user == request.user or user.hide_mail == False %}
                         <h5 class="text-center fw-bold">{{user.email}}</h5>
                         {% else %}
                         <h5 class="text-center fw-bold">*************</h5>
@@ -109,7 +111,7 @@
                         <a type="button" class="btn btn-danger border-2 border-dark shadow text-decoration-none text-dark" href="{% url 'logout' %}">
                             <span class="fw-bold fs-4">Logout</span>
                         </a>
-                        <a type="button" class="btn btn-info border-2 border-dark shadow text-decoration-none text-dark" href="{% url 'usersettings' user.id %}">
+                        <a type="button" class="btn btn-info border-2 border-dark shadow text-decoration-none text-dark" href="{% url 'usersettings'%}">
                             <span class="fw-bold fs-4">Account settings</span>
                         </a>
                     </div>
@@ -131,15 +133,16 @@
 
 
     <div class="toast-container position-fixed top-50 start-50 p-3 translate-middle">
-      <div id="liveToast" class="toast w-100 border-3 border-light rounded" role="alert" aria-live="assertive" aria-atomic="true">
+      <div id="liveToast" class="toast w-100 border-3 border-light rounded" data-bs-delay="50000" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="toast-header bg-dark text-center">
           <h3 class="fw-bold text-white mt-1">Change your avatar</h3>
           <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
         <div class="toast-body bg-dark">
-            <form method="POST" action="" enctype="multipart/form-data">
+            <form method="POST" action="{% url 'updateavatar' request.user.id %}" enctype="multipart/form-data">
+                {% csrf_token %}
                 <div class="input-group mb-3">
-                    <input type="file" class="form-control" id="inputGroupFile01">
+                    {{avatarForm}}
                 </div>
                 <div class="d-grid">
                     <button type="submit" class="btn btn-outline-light">Update your avatar</button>

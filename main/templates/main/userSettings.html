@@ -3,32 +3,35 @@
 
 {% block content %}
 
-<main>
-	<div class="row mx-3">
-		<div class="col-md-4">
-			<div class="card card-body">
-				<a class="btn btn-warning" href="{% url 'home' %}"> &#8592; Back to Profile</a>
-				<hr>
-				<h3 style="text-align: center">Account Settings</h3>
-				<hr>
-			
+<header class="settings">
+	<div class="row">
+		<div class="col-lg-4 mt-5">
+			<div class="bg-light d-grid p-3 rounded border border-info border-4 ms-5 mb-3">
+				<a href="{% url 'userprofile' request.user.id %}" class="btn btn-lg btn-outline-dark"><span class="fw-bold">&#8592; Back to Profile</span></a>
+			</div>
+			<div class="bg-light d-grid gap-2 p-3 rounded border border-info border-4 ms-5">
+				<h1 class="fw-bold text-info text-center">Manage your account</h1>
+				<a href="" class="btn btn-lg btn-outline-info"><span class="fw-bold">Change your password</span></a>
+				<a href="" class="btn btn-lg btn-outline-info"><span class="fw-bold">Send email to our team</span></a>
+				<a href="" class="btn btn-lg btn-outline-success"><span class="fw-bold">Activate PREMIUM</span></a>
+				<a href="" class="btn btn-lg btn-outline-danger mt-4"><span class="fw-bold">Delete your account</span></a>
 			</div>
 		</div>
-		<div class="col-md-8">
-			<div class="card card-body">
-				
-				<form method="POST" action="" enctype="multipart/form-data">
+		<div class="col-lg-4 mt-5">
+			
+		</div>
+		<div class="col-lg-4 mt-5">
+			<div class="bg-light d-grid gap-2 p-3 rounded border border-info border-4 me-5">
+				<h1 class="fw-bold text-info text-center">Change your personal data</h1>
+				<form method="POST">
 					{% csrf_token %}
-
 					{% for field in form %}
-					<div class="mb-3">
-						<span class="fw-bold fs-5">{{field.label}}</span>
-						<br>
-						{{field}}
-					</div>
+						{{field.label}} :&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+						<input type='hidden' value='False' name="hide_mail">
+						{{field}}<br>
 					{% endfor %}
 					<div class="d-grid">
-					<input class="btn btn-warning" type="submit" name="Update Information" value="Update data">
+					<button type="submit" class="btn btn-lg btn-outline-dark">Submit</button>
 					</div>
 				</form>
 				{% for message in messages %}
@@ -47,23 +50,6 @@
 			</div>
 		</div>
 	</div>
-	<div class="row mx-3 my-5">
-		<div class="card card-body">
-			<div class="d-flex flex-row bd-highlight justify-content-center">
-				<div class="col-sm-3">
-					<div class="p-1 bd-highlight d-grid">
-						<a class="btn btn-warning mx-2 p-2" href="#">&#8677;&nbsp;&nbsp;Change your password&nbsp;&nbsp;&#8676;</a>
-					</div>
-				</div>
-				<div class="col-sm-3">
-					<div class="p-1 bd-highlight d-grid">Flex item 2</div>
-				</div>
-				<div class="col-sm-3">
-					<div class="p-1 bd-highlight d-grid">Flex item 3</div>
-				</div>
-			</div>
-		</div>
-	</div>
-</main>
+</header>
 
 {% endblock content %}
