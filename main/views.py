@@ -92,6 +92,7 @@ def userSettings(request):
             messages.info(request, "Your data has been updated successfully")
         else:
             messages.error(request, "Some error occured.")
+            
     context = {
         'user':user,
         'form':form,

@@ -5,10 +5,11 @@ from .models import *
 
 
 class CreateEventForm(ModelForm):
+    #image = forms.ImageField(required=True, widget=forms.FileInput(attrs={'class':"form-control rounded me-5"}))
     class Meta:
         model = Event
         fields = '__all__'
-        exclude = ['organiser', 'participants']
+        exclude = ['organiser', 'participants', 'image']
 
         widgets = {
             'start_date_time': forms.DateTimeInput(

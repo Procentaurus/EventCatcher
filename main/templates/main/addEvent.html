@@ -7,8 +7,8 @@
     <div class="d-flex justify-content-center my-5">
         <div class="card mt-5 rounded border-4" style="width:700px; background-color:rgb(53, 53, 53)">
             <div class="card-body">
-                <h1 class="text-center fw-bold text-white my-4"> Add your new event</h1>
-                <form>
+                <h1 class="text-center display-4 fw-bold text-white my-4"> Add your new event</h1>
+                <form method="POST" enctype="multipart/form-data">
                     {% csrf_token %}
                     {% for field in form %}
                         <div class="row d-flex">
@@ -17,11 +17,14 @@
                             <div class="col-sm-10">
                                 <div class="input-group my-2">
                                     {% if field.name == 'is_open' or field.name == 'is_free' %}
-                                    <span class="input-group-text bg-warning fs-3 me-5 text-dark w-20">{{field.label_tag}}</span>
-                                    {{field}}
+                                        <span class="input-group-text bg-info fs-5 fw-bold p-1 me-5 text-dark w-10">&nbsp;&nbsp;{{field.label_tag}}&nbsp;&nbsp;</span>
+                                        {{field}}
+                                    {% elif field.name == 'description' %}
+                                        <span class="input-group-text bg-info fs-5 fw-bold p-1 text-dark">&nbsp;{{field.label_tag}}&nbsp;</span>
+                                        {{field}}
                                     {% else %}
-                                    <span class="input-group-text bg-warning fs-3 text-dark">{{field.label_tag}}</span>
-                                    {{field}}
+                                        <span class="input-group-text bg-info fs-5 fw-bold p-1 text-dark">&nbsp;&nbsp;&nbsp;&nbsp;{{field.label_tag}}&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                                        {{field}}
                                     {% endif %}
                                 </div>
                             </div>

@@ -39,7 +39,7 @@ class Event(models.Model):
     is_open = models.BooleanField("Is open",null=True)
     is_free = models.BooleanField("Is free",null=True)
     description = models.TextField("Description",max_length=500, null=True)
-    image = models.ImageField(null=True, blank=True, upload_to=event_directory_path)
+    image = models.ImageField(null=True, blank=True, upload_to=event_directory_path, default='eventmodel.png')
 
     def __str__(self):
         return self.name

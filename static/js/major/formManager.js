@@ -19,6 +19,7 @@ function getData(){
 
 function collectForEvent(){
     const p = getData();
+
     const data = {
         'name': p[0],
         'start_date_time': p[1],

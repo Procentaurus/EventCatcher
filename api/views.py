@@ -2,6 +2,7 @@ from rest_framework import mixins
 from rest_framework import generics
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 
 from .models import *
 from .serializers import *
@@ -10,6 +11,7 @@ from main.models import MyUser
 class EventList(mixins.ListModelMixin,mixins.CreateModelMixin,generics.GenericAPIView):
     queryset = Event.objects.all()
     serializer_class = EventSerializer
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def get_queryset(self):
         queryset = Event.objects.all()
@@ -47,6 +49,13 @@ class EventList(mixins.ListModelMixin,mixins.CreateModelMixin,generics.GenericAP
     def post(self, request, *args, **kwargs):
         user = request.user
         serializer = EventSerializer(data=request.data)
+        file = None
+
+        # try:
+        #     file = request.data['image']
+        # except:
+        #     pass
+
         if serializer.is_valid():
             event = serializer.save(organiser=user)
             event.participants.add(user)
