@@ -5,21 +5,24 @@
 <main class="eventback">
     <div class="row">
         <div class="col-lg-2 mt-3" id="management">
+            {% if request.user == user %}
             <div class="d-grid gap-2 bg-light mx-2 mt-2 rounded shadow">
-                <button class="btn btn-info mx-2 mt-2" type="button"><b>Change event's picture</b></button>
-                <button class="btn btn-info mx-2" type="button"><b>Change specifics of the event</b></button>
-                <button class="btn btn-info mx-2" type="button"><b>Enable inviting for participants</b></button>
-                <button class="btn btn-warning mx-2" type="button"><b>Disable inviting for participants</b></button>
-                <button class="btn btn-success mx-2" type="button"><b>Invite for this event</b></button>
-                <button class="btn btn-warning mx-2" type="button"><b>Kick out the participant</b></button>
-                <button class="btn btn-danger mx-2 mb-2" type="button"><b>Delete the event</b></button>
+                {% csrf_token %}
+                <button class="btn btn-success mx-2 mt-2" type="button" id="invite_for_event"><b>Invite for this event</b></button>
+                <button class="btn btn-info mx-2" type="button" id="event_picture"><b>Change event's picture</b></button>
+                <button class="btn btn-info mx-2" type="button" id="event_specifics"><b>Change specifics of the event</b></button>
+                <button class="btn btn-info mx-2" type="button" id="enable_inviting"><b>Enable inviting for participants</b></button>
+                <button class="btn btn-warning mx-2" type="button" id="disable_inviting"><b>Disable inviting for participants</b></button>
+                <button class="btn btn-warning mx-2" type="button" id="kick_participant"><b>Kick out the participant</b></button>
+                <button class="btn btn-danger mx-2 mb-2" type="button" id="delete_event"><b>Delete the event</b></button>
             </div>
+            {% endif %}
             <div class="mx-2 mt-4" id="participants">
 
             </div>
         </div>
         <div id="main" class="col-lg-10">
-            {{event_id}}
+            
         </div>
     </div>
 </main>

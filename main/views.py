@@ -220,7 +220,8 @@ def eventSite(request, pk):
 
     if event is not None:
         context = {
-            'event_id': pk
+            'event_id': pk,
+            'user': event.organiser,
         }
         return render(request, 'main/eventSite.html', context)
     return redirect(request.META['HTTP_REFERER'])
