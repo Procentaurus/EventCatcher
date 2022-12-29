@@ -30,7 +30,7 @@ function searchUsers(){
     }
 
     const me = JSON.parse(document.getElementById('mydata').textContent);
-    var url = `http://127.0.0.1:8000/lookforfriends/${me}/?user_name=${user_name}`;
+    var url =  mainUrl + `lookforfriends/${me}/?user_name=${user_name}`;
 
     fetch(url, {
         method: "GET",

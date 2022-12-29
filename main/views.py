@@ -9,6 +9,7 @@ from datetime import datetime
 
 from .forms import *
 from api.forms import *
+from api.models import Event
 from .decorators import *
 from .models import *
 from .functions import *
@@ -92,7 +93,7 @@ def userSettings(request):
             messages.info(request, "Your data has been updated successfully")
         else:
             messages.error(request, "Some error occured.")
-            
+
     context = {
         'user':user,
         'form':form,
@@ -208,4 +209,18 @@ def updateAvatar(request, pk):
         if user.image != picture:
             deleteFile(picture, user.id)
     
+    return redirect(request.META['HTTP_REFERER'])
+
+
+def eventSite(request, pk):
+    try:
+        event = Event.objects.get(id=pk)
+    except:
+        return redirect('eventshowdown')
+
+    if event is not None:
+        context = {
+            'event_id': pk
+        }
+        return render(request, 'main/eventSite.html', context)
     return redirect(request.META['HTTP_REFERER'])

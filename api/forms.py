@@ -9,7 +9,7 @@ class CreateEventForm(ModelForm):
     class Meta:
         model = Event
         fields = '__all__'
-        exclude = ['organiser', 'participants', 'image']
+        exclude = ['organiser', 'participants', 'image', 'can_participants_invite']
 
         widgets = {
             'start_date_time': forms.DateTimeInput(

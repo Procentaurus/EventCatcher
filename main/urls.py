@@ -11,6 +11,7 @@ urlpatterns = [
 
     path('addEvent/', views.addEvent, name='addEvent'),
     path('eventshowdown/', views.eventShowdown, name='eventshowdown'),
+    path('eventsite/<int:pk>/', views.eventSite, name='eventsite'),
 
     path('usersettings/', views.userSettings, name='usersettings'),
     path('userprofile/<int:pk>/', views.userProfile, name='userprofile'),
@@ -19,8 +20,5 @@ urlpatterns = [
     path('acceptfriendrequest/<int:pk>/', views.acceptFriendRequest, name='acceptfriendrequest'),
     path('rejectfriendrequest/<int:pk>/', views.rejectFriendRequest, name='rejectfriendrequest'),
     path('sendfriendrequest/', views.sendFriendRequest, name='sendfriendrequest'),
-
     path('lookforfriends/<int:pk>/', views.lookForFriends, name='lookforfriends'),
-
-
 ]

@@ -7,7 +7,7 @@ function searchUserEvents(){
     var usernameUsing = document.getElementById("navusername").innerText;
     var usernamePage_ready = usernamePage.slice(1);
     var usernameUsing_ready = usernameUsing.slice(1);
-    var url = `http://127.0.0.1:8000/api/events?organiser=${usernamePage_ready}`;
+    var url = mainUrl + `api/events?organiser=${usernamePage_ready}`;
 
     fetch(url)
     .then((resp) => resp.json())
@@ -38,7 +38,7 @@ function searchUserEvents(){
                             </div>
                         </div>
                         <div class="row mx-1">
-                            <div class="col-sm-5 mt-1 me-2">
+                            <div class="col-sm-6 mt-1">
                                 <div class="my_card">
                                     <h4 class="fw-bold text-light">Where and when</h4>
                                     <div><span class="fw-bold text-light">Beggining:</span>&nbsp;&nbsp;<span class="text-light">${convertDate(datalist[i].start_date_time)}</span></div>
@@ -46,7 +46,7 @@ function searchUserEvents(){
                                     <div><span class="fw-bold text-light">Location:</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-light">${datalist[i].location}</span></div>
                                 </div>
                             </div>
-                            <div class="col-sm-5 mt-1">
+                            <div class="col-sm-6 mt-1">
                                 <div class="my_card">
                                     <h4 class="fw-bold text-light">Character</h4>
                                     <div><span class="fw-bold text-light">Is open:</span>&nbsp;&nbsp;&nbsp;<span class="text-light">${datalist[i].is_open}</span></div>

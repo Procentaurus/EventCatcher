@@ -2,8 +2,7 @@ var form = document.getElementById('request');
 form.addEventListener('click', function(e){
     e.preventDefault();
 
-    var url = 'http://127.0.0.1:8000/api/events/';
-    var url3 = 'http://127.0.0.1:8000/';
+    var url = mainUrl + 'api/events/';
 
     const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
     const data = collectForEvent();
@@ -25,7 +24,7 @@ form.addEventListener('click', function(e){
                 response.json()
             })
             .then((data) => {
-                window.location.href = url3;
+                window.location.href = mainUrl;
             })
             .catch((error) => {
                 console.error('Error:', error);

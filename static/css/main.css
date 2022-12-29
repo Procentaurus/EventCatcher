@@ -8,13 +8,21 @@
 }
 .settings {
     height: 100vh;
+    width : 100%;
     min-height: 500px;
     background-image: url("/static/images/settings.jpg");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
 }
-
+.eventback{
+    height: 100vh;
+    min-height: 500px;
+    background-image: url("/static/images/eventbackground.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
 #logofont{
     font-family:'Times New Roman', Times, serif;
     font-weight: 900;
