@@ -97,6 +97,7 @@ function addListeners(){
     var url = mainUrl + `api/events/${event_id}/`;
     const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
     try{
+
         element = document.getElementById('enable_inviting');
         element.addEventListener("click", function() {
 
@@ -123,6 +124,7 @@ function addListeners(){
                     console.error('Error:', error);
             });
         });
+
         element = document.getElementById('disable_inviting');
         element.addEventListener("click", function() {
 
@@ -148,10 +150,6 @@ function addListeners(){
                 .catch((error) => {
                     console.error('Error:', error);
             });
-        });
-        element = document.getElementById('invite_for_event_exterior');
-        element.addEventListener("click", function() {
-            document.getElementById("main").innerHTML = "invite_for_event_exterior";
         });
 
         element = document.getElementById('delete_event_interior');
@@ -180,6 +178,38 @@ function addListeners(){
                     console.error('Error:', error);
             });
         });
+
+        element = document.getElementById('banner-picture-submit');
+        element.addEventListener("click", function() {
+
+            const imageInput = document.getElementById('banner-picture-input');
+
+            let image = imageInput.files[0];
+            let formData = new FormData();
+
+            formData.append('image', image);
+            formData.append('id', eventData.id);
+            formData.append('name', eventData.name);
+            console.log(formData);
+
+            fetch(url, {
+                method: 'PUT',
+                headers: {
+                    'X-CSRFToken': csrftoken,
+                },
+                body: formData,
+                redirect: 'follow',
+            })
+            .then((response) => {
+                response.json()
+            })
+            .then((data) => {
+                window.location.href = mainUrl + `eventsite/${event_id}/`;
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        })  
     }
     catch{}
 }

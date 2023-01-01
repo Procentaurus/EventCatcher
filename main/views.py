@@ -207,7 +207,7 @@ def updateAvatar(request, pk):
         if form.is_valid():
             form.save()
         if user.image != picture:
-            deleteFile(picture, user.id)
+            deleteFile(picture)
     
     return redirect(request.META['HTTP_REFERER'])
 

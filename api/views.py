@@ -8,6 +8,7 @@ import datetime
 from .models import *
 from .serializers import *
 from main.models import MyUser
+from main.functions import *
 
 class EventList(mixins.ListModelMixin,mixins.CreateModelMixin,generics.GenericAPIView):
     queryset = Event.objects.all()
@@ -50,12 +51,6 @@ class EventList(mixins.ListModelMixin,mixins.CreateModelMixin,generics.GenericAP
     def post(self, request, *args, **kwargs):
         user = request.user
         serializer = EventSerializer(data=request.data)
-        file = None
-
-        # try:
-        #     file = request.data['image']
-        # except:
-        #     pass
 
         if serializer.is_valid():
             event = serializer.save(organiser=user)
@@ -77,7 +72,7 @@ class EventDetail(mixins.RetrieveModelMixin,
     def put(self, request, *args, **kwargs):
 
         event = Event.objects.get(id=request.data['id'])
-        kickout, invited = None, None
+        kickout, invited, file = None, None, None
         try:
             kickout = MyUser.objects.get(id=request.data['to_kick'])
         except:
@@ -87,12 +82,23 @@ class EventDetail(mixins.RetrieveModelMixin,
             invited = MyUser.objects.get(id=request.data['to_invite'])
         except:
             pass
+
+        try:
+            file = request.data['image']
+        except:
+            pass
         
         if kickout is not None:
             event.participants.remove(kickout)
         if invited is not None:
             newInvitation = Invitation(request.user,invited,event,datetime.date.today())
             newInvitation.save()
+
+        if file is not None:
+            picture = event.image
+            event.image = file
+            if event.image != picture:
+                deleteFile(picture)
 
         return self.update(request, *args, **kwargs)
 

@@ -1,7 +1,7 @@
 from pathlib import Path
 import os
 
-def deleteFile(path, id):
+def deleteFile(path):
     if path != '/images/model.png':
         BASE_DIR = Path(__file__).resolve().parent.parent
         final_path = str(BASE_DIR) +'/static/images/' + str(path)
