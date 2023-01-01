@@ -35,6 +35,8 @@ function fetchSingleData(url, username){
             destination.innerHTML += x;
             counter++;
         }
+
+
         destination = document.getElementById('main');
         destination.innerHTML += `
             <h1 class="display-1 fw-bold text-center">${eventData.name}</h1>
@@ -42,17 +44,33 @@ function fetchSingleData(url, username){
                 <img src="${eventData.image}" class="banner_max" />
             </div>
         `
+
+
         destination = document.getElementById('users_to_kick');
-        for(let x = 0; x < eventData.participants.length; x+=3){
+        var participants = eventData.participants;
+        for( var i = 0; i < participants.length; i++){ 
+            if ( participants[i].username == username) participants.splice(i, 1); 
+        }
+        participants.sort((a, b) => {
+            let fa = a.username.toLowerCase(), fb = b.username.toLowerCase();
+        
+            if (fa < fb) return -1;
+            if (fa > fb) return 1;
+            return 0;
+        });
+
+        for(let x = 0; x < participants.length; x+=3){
             let div = `<div class="d-flex justify-content-center mb-2">`;
             for(let k=0;k<3;k++){
-                let participant = eventData.participants[x+k];
-                div += `
-                    <button id="${participant.id}" class="btn btn-light mx-1 p-1" href="${mainUrl}userprofile/${participant.id}">
-                        <img class="avatar" src="${participant.image}">
-                        <span class="text-nowrap fs-4 me-4 ms-2 fw-bold text-dark">@${participant.username}</span>
-                    </button>
-                `
+                let participant = participants[x+k];
+                if(participant != null){
+                    div += `
+                        <button id="${participant.id}" class="btn btn-light mx-1 p-1" href="${mainUrl}userprofile/${participant.id}">
+                            <img class="avatar" src="${participant.image}">
+                            <span class="text-nowrap fs-4 me-4 ms-2 fw-bold text-dark">@${participant.username}</span>
+                        </button>
+                    `
+                }
             }
             div += `</div>`;
             destination.innerHTML += div;
