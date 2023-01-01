@@ -1,8 +1,10 @@
 takeBegginingData();
-addListenersForShowingModal();
+addListenersForMainModal();
 addListeners();
 
 var eventData;
+var mainModal = new bootstrap.Modal(document.getElementById('mainModal'));
+var supportingModal = new bootstrap.Modal(document.getElementById('supportingModal'));
 
 function fetchSingleData(url, username){
     fetch(url)
@@ -10,6 +12,7 @@ function fetchSingleData(url, username){
     .then(function(data){
         eventData = data;
 
+        // wyswietlanie tylko 1 z buttonów
         if(eventData.can_participants_invite){
             try {
                 document.getElementById('enable_inviting').style.display = "none";
@@ -21,8 +24,8 @@ function fetchSingleData(url, username){
             }catch{}
         }
 
+        // wyswietlanie participantsów po lewej stronie
         var destination = document.getElementById('participants');
-        var counter = 0;
         for(participant of eventData.participants){
             let x = `
                 <div class="text-center bg-light rounded my-1 me-0">
@@ -33,10 +36,9 @@ function fetchSingleData(url, username){
                 </div>
             `
             destination.innerHTML += x;
-            counter++;
         }
 
-
+        // wyswietlanie danych eventu po srodku
         destination = document.getElementById('main');
         destination.innerHTML += `
             <h1 class="display-1 fw-bold text-center">${eventData.name}</h1>
@@ -45,7 +47,7 @@ function fetchSingleData(url, username){
             </div>
         `
 
-
+        //wyswietlanie participantsów w modalu służącym do robienia kicków
         destination = document.getElementById('users_to_kick');
         var participants = eventData.participants;
         for( var i = 0; i < participants.length; i++){ 
@@ -65,7 +67,7 @@ function fetchSingleData(url, username){
                 let participant = participants[x+k];
                 if(participant != null){
                     div += `
-                        <button id="${participant.id}" class="btn btn-light mx-1 p-1" href="${mainUrl}userprofile/${participant.id}">
+                        <button id="kick_${participant.id}" class="btn btn-light mx-1 p-1" href="${mainUrl}userprofile/${participant.id}">
                             <img class="avatar" src="${participant.image}">
                             <span class="text-nowrap fs-4 me-4 ms-2 fw-bold text-dark">@${participant.username}</span>
                         </button>
@@ -75,6 +77,7 @@ function fetchSingleData(url, username){
             div += `</div>`;
             destination.innerHTML += div;
         }
+        addListenersForSupportingModal(participants);
     })
 }
 
@@ -150,10 +153,6 @@ function addListeners(){
         element.addEventListener("click", function() {
             document.getElementById("main").innerHTML = "invite_for_event_exterior";
         });
-        element = document.getElementById('kick_participant_exterior');
-        element.addEventListener("click", function() {
-            document.getElementById("main").innerHTML = "kick_participant_exterior";
-        });
 
         element = document.getElementById('delete_event_interior');
         element.addEventListener("click", function() {
@@ -181,12 +180,12 @@ function addListeners(){
                     console.error('Error:', error);
             });
         });
-    }catch{}
+    }
+    catch{}
 }
 
-function addListenersForShowingModal(){
+function addListenersForMainModal(){
     try{
-        var myModal = new bootstrap.Modal(document.getElementById('staticBackdrop'));
         const objects = [
               "delete-body",
               "delete-title",
@@ -202,28 +201,28 @@ function addListenersForShowingModal(){
         element.addEventListener("click", function() {
             displayObject(objects[0]);
             displayObject(objects[1]);
-            myModal.show();
+            mainModal.show();
         });
 
         element = document.getElementById('kick_participant_exterior');
         element.addEventListener("click", function() {
             displayObject(objects[2]);
             displayObject(objects[3]);
-            myModal.show();
+            mainModal.show();
         });
 
         element = document.getElementById('invite_for_event_exterior');
         element.addEventListener("click", function() {
             displayObject(objects[4]);
             displayObject(objects[5]);
-            myModal.show();
+            mainModal.show();
         });
 
         element = document.getElementById('event_picture_exterior');
         element.addEventListener("click", function() {
             displayObject(objects[6]);
             displayObject(objects[7]);
-            myModal.show();
+            mainModal.show();
         });
 
         element = document.getElementById('close');
@@ -231,10 +230,90 @@ function addListenersForShowingModal(){
             for(obj of objects){
                 hideObject(obj);
             }
-            myModal.hide();
+            mainModal.hide();
         });
     }
     catch{
 
+    }
+}
+
+function addListenersForSupportingModal(participants){
+    try{
+        const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        user_data = document.getElementById("user-data");
+        var userID = 0;
+
+        for(let i=0; i<participants.length; i++){
+            object = document.getElementById(`kick_${participants[i].id}`);
+            object.addEventListener("click", function(){
+                mainModal.hide();
+                userID = participants[i].id;
+                user_data.innerHTML = `
+                    <img class="avatar" src="${participants[i].image}">
+                    <span class="text-nowrap fs-5 me-4 ms-2 fw-bold text-dark">@${participants[i].username}</span>
+                `
+                displayObject("final-kick-title");
+                displayObject("final-kick-positive");
+                displayObject("final-kick-negative");
+                supportingModal.show();
+            })
+        }
+
+        element = document.getElementById('final-kick-negative');
+        element.addEventListener("click", function() {
+            hideObject("final-kick-title");
+            hideObject("final-kick-positive");
+            hideObject("final-kick-negative");
+
+            userID = 0;
+
+            supportingModal.hide();
+            mainModal.show();
+        });
+
+        element = document.getElementById('final-kick-positive');
+        element.addEventListener("click", function() {
+            var url = mainUrl + `api/events/${event_id}/`;
+            const request_data = {
+                "id": eventData.id,
+                "name": eventData.name,
+                "to_kick": userID
+            };
+            fetch(url, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken,
+                },
+                redirect: 'follow',
+                body: JSON.stringify(request_data),
+                })
+                .then((response) => {
+                    response.json()
+                })
+                .then((request_data) => {
+                    window.location.href = mainUrl + `eventsite/${event_id}/`;
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+            });
+        });
+
+        element = document.getElementById('final-invite-negative');
+        element.addEventListener("click", function() {
+            supportingModal.hide();
+            mainModal.hide();
+        });
+
+        element = document.getElementById('final-invite-positive');
+        element.addEventListener("click", function() {
+            supportingModal.hide();
+            mainModal.hide();
+        });
+
+    }
+    catch{
+    
     }
 }

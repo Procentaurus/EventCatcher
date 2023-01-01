@@ -31,7 +31,7 @@
     </div>
 
 
-    <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal fade" id="mainModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="mainModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
           <div class="modal-content">
             <div class="modal-header">
@@ -56,11 +56,34 @@
               3
             </div>
             <div class="modal-body" id="kick-body" hidden>
-              <h4>Click the user you want to kick out: </h4>
-              <div class="col-sm-8 w-100" id="users_to_kick">
+              <h4>Click the participant you want to kick out: </h4>
+              <div class="col-sm-8 w-100 mt-3" id="users_to_kick">
                   
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal fade" id="supportingModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+              <div class="modal-header">
+                <h2 class=" modal-title fw-bold text-center w-100" id="final-invite-title" hidden>Are you sure that you want to send an invitation to this user ?</h2>
+                <h2 class="modal-title fw-bold text-center w-100" id="final-kick-title" hidden>Are you sure you want to kick this participant out ?</h2>
+              </div>
+              <div id="user-data" class="text-center bg-light rounded my-1 me-0 w-100">
+
+              </div>
+              <div class="modal-body w-100 d-grid gap-2" id="final-kick-body">
+                  <button id="final-kick-negative" class="btn btn-lg btn-outline-secondary" hidden><b>Do not kick him</b></button>
+                  <button id="final-kick-positive" class="btn btn-lg btn-outline-danger" hidden><b>Kick the participant out</b></button>
+              </div>
+              
+              <div class="modal-body w-100 d-grid gap-2" id="final-invite-body">
+                  <button id="final-kick-negative" class="btn btn-lg btn-outline-secondary" hidden><b>Do not kick him</b></button>
+                  <button id="final-kick-positive" class="btn btn-lg btn-outline-danger" hidden><b>Kick the participant out</b></button>
+              </div>
           </div>
         </div>
       </div>
