@@ -1,5 +1,5 @@
 searchUserEvents();
-enableChangingAvatar();
+activateBootstrapToast("myBadge", "myToast");
 
 function searchUserEvents(){
     var destination = document.getElementById('destination');
@@ -75,15 +75,4 @@ function searchUserEvents(){
             destination.innerHTML += item
         }
     })
-}
-
-function enableChangingAvatar(){
-    const toastTrigger = document.getElementById('myBadge')
-    const toastLiveExample = document.getElementById('liveToast')
-    if (toastTrigger) {
-    toastTrigger.addEventListener('click', () => {
-        const toast = new bootstrap.Toast(toastLiveExample)
-        toast.show()
-        })
-    }
 }

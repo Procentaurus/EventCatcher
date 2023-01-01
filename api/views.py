@@ -3,6 +3,7 @@ from rest_framework import generics
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
+import datetime
 
 from .models import *
 from .serializers import *
@@ -74,6 +75,25 @@ class EventDetail(mixins.RetrieveModelMixin,
         return self.retrieve(request, *args, **kwargs)
 
     def put(self, request, *args, **kwargs):
+
+        event = Event.objects.get(id=request.data['id'])
+        kickout, invited = None, None
+        try:
+            kickout = MyUser.objects.get(id=request.data['to_kick'])
+        except:
+            pass
+
+        try:
+            invited = MyUser.objects.get(id=request.data['to_invite'])
+        except:
+            pass
+        
+        if kickout is not None:
+            event.participants.remove(kickout)
+        if invited is not None:
+            newInvitation = Invitation(request.user,invited,event,datetime.date.today())
+            newInvitation.save()
+
         return self.update(request, *args, **kwargs)
 
     def delete(self, request, *args, **kwargs):

@@ -4,7 +4,7 @@
 {% block content %}
 
 <main>
-    <div class="row mx-4">
+    <div class="row mx-1">
         <div class="row mt-3">
             <div class="col-lg-2">
                 <div class="row mb-2">
@@ -58,10 +58,10 @@
                             {% endif %}
                             <h3 class="fw-bold text-center mt-2 text-light">Friends :</h3>
                             {% for friend in friends %}
-                                <div class="text-center bg-light rounded my-1">
+                                <div class="text-center bg-light rounded my-1 me-0">
                                     <a class="nav-link p-1" href="{% url 'userprofile' friend.id %}">
                                         <img class="avatar" src="{{ friend.image.url }}">
-                                        <span class="text-nowrap fs-4 me-4 ms-2 fw-bold text-dark">@{{friend}}</span>
+                                        <span class="text-nowrap fs-5 me-4 ms-2 fw-bold text-dark">@{{friend}}</span>
                                     </a>
                                 </div>
                             {% endfor %}

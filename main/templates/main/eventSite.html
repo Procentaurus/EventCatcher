@@ -3,28 +3,69 @@
 
 {% block content %}
 <main class="eventback">
+<div class="container-fluid h-100 ">
     <div class="row">
         <div class="col-lg-2 mt-3" id="management">
             {% if request.user == user %}
-            <div class="d-grid gap-2 bg-light mx-2 mt-2 rounded shadow">
+            <div class="d-grid gap-2 bg-light mt-2 rounded shadow">
                 {% csrf_token %}
-                <button class="btn btn-success mx-2 mt-2" type="button" id="invite_for_event"><b>Invite for this event</b></button>
-                <button class="btn btn-info mx-2" type="button" id="event_picture"><b>Change event's picture</b></button>
+                <button class="btn btn-success mx-2 mt-2" type="button" id="invite_for_event_exterior"><b>Invite for this event</b></button>
+                <button class="btn btn-info mx-2" type="button" id="event_picture_exterior"><b>Change event's picture</b></button>
                 <button class="btn btn-info mx-2" type="button" id="event_specifics"><b>Change specifics of the event</b></button>
                 <button class="btn btn-info mx-2" type="button" id="enable_inviting"><b>Enable inviting for participants</b></button>
                 <button class="btn btn-warning mx-2" type="button" id="disable_inviting"><b>Disable inviting for participants</b></button>
-                <button class="btn btn-warning mx-2" type="button" id="kick_participant"><b>Kick out the participant</b></button>
-                <button class="btn btn-danger mx-2 mb-2" type="button" id="delete_event"><b>Delete the event</b></button>
+                <button class="btn btn-warning mx-2" type="button" id="kick_participant_exterior"><b>Kick out the participant</b></button>
+                <button class="btn btn-danger mx-2 mb-2" type="button" id="delete_event_exterior"><b>Delete the event</b></button>
             </div>
             {% endif %}
             <div class="mx-2 mt-4" id="participants">
 
             </div>
         </div>
-        <div id="main" class="col-lg-10">
+        <div id="main" class="col-lg-8 my-4">
+            
+        </div>
+        <div id="suggested" class="col-lg-8">
             
         </div>
     </div>
+
+
+    <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="fw-bold display-4 text-center w-100" id="delete-title" hidden>Delete the event</h1>
+              <h1 class="modal-title fw-bold display-4 text-center w-100" id="picture-title" hidden>Change the banner picture of the event</h1>
+              <h1 class=" modal-title fw-bold display-4 text-center w-100" id="invite-title" hidden>Invite new user to the evnt</h1>
+              <h1 class="modal-title fw-bold display-4 text-center w-100" id="kick-title" hidden>Kick the participant out from event</h1>
+              <button type="button" class="btn-close" id="close"></button>
+            </div>
+            <div class="modal-body" id="invite-body" hidden>
+              1
+            </div>
+            <div class="modal-body" id="delete-body" hidden>
+                <h4>Are you certain that you want to permamently delete this event???</h4>
+                <div class="col-sm2"></div>
+                <div class="col-sm-8 d-grid w-100 my-4">
+                    <button class="btn btn-lg btn-outline-danger" id="delete_event_interior"><b>Delete event</b></button>
+                </div>
+                <div class="col-sm2"></div> 
+            </div>
+            <div class="modal-body" id="picture-body" hidden>
+              3
+            </div>
+            <div class="modal-body" id="kick-body" hidden>
+              <h4>Click the user you want to kick out: </h4>
+              <div class="col-sm-8 w-100" id="users_to_kick">
+                  
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+</div>
 </main>
 
 <script data-event_id="{{ event_id }}">

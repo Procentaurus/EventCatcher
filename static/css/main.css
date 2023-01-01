@@ -18,7 +18,7 @@
 .eventback{
     height: 100vh;
     min-height: 500px;
-    background-image: url("/static/images/eventbackground.jpg");
+    background-image: url("/static/images/eventbackground.webp");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -61,7 +61,7 @@ body{
 }
 
 .avatar{
-    max-width: 54x;
+    max-width: 54px;
     max-height:54px;
     margin: 0;
     border-radius: 35%;
@@ -73,6 +73,14 @@ body{
     margin: 0 auto;
     border-radius: 35%;
     position: relative;
+}
+
+.banner_max{
+    max-width: 800px;
+    margin: 0 auto;
+    border-radius: 25%;
+    position: relative;
+    margin-top: 2em;
 }
 
 .eventimage{
