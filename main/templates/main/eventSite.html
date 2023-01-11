@@ -11,7 +11,7 @@
                 {% csrf_token %}
                 <button class="btn btn-success mx-2 mt-2" type="button" id="invite_for_event_exterior"><b>Invite for this event</b></button>
                 <button class="btn btn-info mx-2" type="button" id="event_picture_exterior"><b>Change event's picture</b></button>
-                <button class="btn btn-info mx-2" type="button" id="event_specifics"><b>Change specifics of the event</b></button>
+                <button class="btn btn-info mx-2" type="button" id="event_specifics_exterior"><b>Change specifics of the event</b></button>
                 <button class="btn btn-info mx-2" type="button" id="enable_inviting"><b>Enable inviting for participants</b></button>
                 <button class="btn btn-warning mx-2" type="button" id="disable_inviting"><b>Disable inviting for participants</b></button>
                 <button class="btn btn-warning mx-2" type="button" id="kick_participant_exterior"><b>Kick out the participant</b></button>
@@ -37,12 +37,46 @@
             <div class="modal-header">
               <h1 class="fw-bold display-4 text-center w-100" id="delete-title" hidden>Delete the event</h1>
               <h1 class="modal-title fw-bold display-4 text-center w-100" id="picture-title" hidden>Change the banner picture</h1>
-              <h1 class=" modal-title fw-bold display-4 text-center w-100" id="invite-title" hidden>Invite new user to the evnt</h1>
+              <h1 class="modal-title fw-bold display-4 text-center w-100" id="specifics-title" hidden>Change event's info</h1>
+              <h1 class=" modal-title fw-bold display-4 text-center w-100" id="invite-title" hidden>Invite new user to the event</h1>
               <h1 class="modal-title fw-bold display-4 text-center w-100" id="kick-title" hidden>Kick the participant out from event</h1>
               <button type="button" class="btn-close" id="close"></button>
             </div>
             <div class="modal-body" id="invite-body" hidden>
               1
+            </div>
+            <div class="modal-body" id="specifics-body" hidden>
+                <form>
+                  {% for field in form %}
+                      <div class="row d-flex">
+                          <div class="col-sm-1">
+                          </div>
+                          <div class="col-sm-10">
+                              <div class="input-group my-2">
+                                  {% if field.name == 'is_open' or field.name == 'is_free' %}
+                                      <span class="input-group-text bg-info fs-5 fw-bold p-1 me-5 text-dark w-10">&nbsp;&nbsp;{{field.label_tag}}&nbsp;&nbsp;</span>
+                                      {{field}}
+                                  {% elif field.name == 'description' %}
+                                      <span class="input-group-text bg-info fs-5 fw-bold p-1 text-dark">&nbsp;{{field.label_tag}}&nbsp;</span>
+                                      {{field}}
+                                  {% else %}
+                                      <span class="input-group-text bg-info fs-5 fw-bold p-1 text-dark">&nbsp;&nbsp;&nbsp;&nbsp;{{field.label_tag}}&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                                      {{field}}
+                                  {% endif %}
+                              </div>
+                          </div>
+                          <div class="col-sm-1">
+                          </div>
+                      </div>
+                  {% endfor %}
+                  <ul class="list-group list-group-flush mx-5">
+                      <li id="emptyFields" class="list-group-item text-danger fw-bold list-group-item-danger rounded mb-1" hidden>You haven't filled all fields.</li>
+                      <li id="badDate" class="list-group-item text-danger fw-bold list-group-item-danger rounded" hidden>End date can't be earlier than start date.</li>
+                  </ul>
+                </form>
+                <div class="d-grid mt-3">
+                    <input id="event-specifics-interior" class="btn btn-lg btn-outline-dark px-5" type="submit" value="Change event's data">
+                </div>
             </div>
             <div class="modal-body" id="delete-body" hidden>
                 <h4>Are you certain that you want to permamently delete this event???</h4>
@@ -100,5 +134,6 @@
     const data = document.currentScript.dataset;
     const event_id = data.event_id;
 </script>
+<script type="text/javascript" src="{% static 'js/major/formManager.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/for_templates/eventSite.js' %}"></script>
 {% endblock content %}

@@ -213,6 +213,8 @@ def updateAvatar(request, pk):
 
 
 def eventSite(request, pk):
+
+    form = CreateEventForm()
     try:
         event = Event.objects.get(id=pk)
     except:
@@ -222,6 +224,7 @@ def eventSite(request, pk):
         context = {
             'event_id': pk,
             'user': event.organiser,
+            'form': form
         }
         return render(request, 'main/eventSite.html', context)
     return redirect(request.META['HTTP_REFERER'])

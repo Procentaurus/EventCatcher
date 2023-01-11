@@ -98,8 +98,46 @@ function addListeners(){
     const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
     try{
 
+        element = document.getElementById('event-specifics-interior');
+        element.addEventListener('click', function(e){
+            e.preventDefault();
+
+            var data = collectForEvent();
+            data.id = eventData.id;
+            
+            removeEmptyValues(data);
+
+            if(!data.hasOwnProperty('name')) data.name = eventData.name
+
+            console.log(data);
+            var myFlag = showErrorForEvent("badDate");
+            console.log(myFlag);
+            // if(myFlag){
+            //     fetch(url, {
+            //         method: 'PUT',
+            //         headers: {
+            //             'Content-Type': 'application/json',
+            //             'X-CSRFToken': csrftoken,
+            //         },
+            //         redirect: 'follow',
+            //         body: JSON.stringify(data),
+            //         })
+            //         .then((response) => {
+            //             response.json()
+            //         })
+            //         .then((data) => {
+            //             window.location.href = mainUrl;
+            //         })
+            //         .catch((error) => {
+            //             console.error('Error:', error);
+            //         });
+            // }
+        });
+
         element = document.getElementById('enable_inviting');
-        element.addEventListener("click", function() {
+        element.addEventListener("click", function(e) {
+
+            e.preventDefault();
 
             var data = eventData;
             data.can_participants_invite = true;
@@ -126,7 +164,9 @@ function addListeners(){
         });
 
         element = document.getElementById('disable_inviting');
-        element.addEventListener("click", function() {
+        element.addEventListener("click", function(e) {
+
+            e.preventDefault();
 
             var data = eventData;
             data.can_participants_invite = false;
@@ -153,7 +193,9 @@ function addListeners(){
         });
 
         element = document.getElementById('delete_event_interior');
-        element.addEventListener("click", function() {
+        element.addEventListener("click", function(e) {
+
+            e.preventDefault();
 
             var data = eventData;
             data.can_participants_invite = true;
@@ -180,7 +222,9 @@ function addListeners(){
         });
 
         element = document.getElementById('banner-picture-submit');
-        element.addEventListener("click", function() {
+        element.addEventListener("click", function(e) {
+
+            e.preventDefault();
 
             const imageInput = document.getElementById('banner-picture-input');
 
@@ -190,7 +234,6 @@ function addListeners(){
             formData.append('image', image);
             formData.append('id', eventData.id);
             formData.append('name', eventData.name);
-            console.log(formData);
 
             fetch(url, {
                 method: 'PUT',
@@ -225,6 +268,8 @@ function addListenersForMainModal(){
               "invite-title",
               "picture-body",
               "picture-title",
+              "specifics-title",
+              "specifics-body"
             ]; 
 
         element = document.getElementById('delete_event_exterior');
@@ -252,6 +297,12 @@ function addListenersForMainModal(){
         element.addEventListener("click", function() {
             displayObject(objects[6]);
             displayObject(objects[7]);
+            mainModal.show();
+        });
+        element = document.getElementById('event_specifics_exterior');
+        element.addEventListener("click", function() {
+            displayObject(objects[8]);
+            displayObject(objects[9]);
             mainModal.show();
         });
 
