@@ -22,3 +22,14 @@ function hideObject(obj) {
 function displayObject(obj) {
     document.getElementById(obj).hidden = false;
 }
+
+function removeEmptyValues(object) {
+    for (var key in object) {
+        if (object.hasOwnProperty(key)) {
+            var value = object[key];
+            if (value === null || value === undefined || value === '') {
+                delete object[key];
+            }
+        }
+    }
+}

@@ -1,10 +1,11 @@
 takeBegginingData();
-addListenersForMainModal();
+addListenersForExteriorButtons();
 addListeners();
 
 var eventData;
 var mainModal = new bootstrap.Modal(document.getElementById('mainModal'));
 var supportingModal = new bootstrap.Modal(document.getElementById('supportingModal'));
+var userID;
 
 function fetchSingleData(url, username){
     fetch(url)
@@ -13,185 +14,37 @@ function fetchSingleData(url, username){
         eventData = data;
 
         // wyswietlanie tylko 1 z buttonów
-        if(eventData.can_participants_invite){
-            try {
-                document.getElementById('enable_inviting').style.display = "none";
-            }catch{}
-        }
-        else{
-            try {
-                document.getElementById('disable_inviting').style.display = "none";
-            }catch{}
-        }
+        displayProperInvitingOption(eventData);
 
         // wyswietlanie participantsów po lewej stronie
-        var destination = document.getElementById('participants');
-        for(participant of eventData.participants){
-            let x = `
-                <div class="text-center bg-light rounded my-1 me-0">
-                    <a class="nav-link p-1" href="${mainUrl}userprofile/${participant.id}">
-                        <img class="avatar" src="${participant.image}">
-                        <span class="text-nowrap fs-5 me-4 ms-2 fw-bold text-dark">@${participant.username}</span>
-                    </a>
-                </div>
-            `
-            destination.innerHTML += x;
-        }
+        displayParticipants(eventData);
 
         // wyswietlanie danych eventu po srodku
-        destination = document.getElementById('main');
-        destination.innerHTML += `
-            <h1 class="display-1 fw-bold text-center">${eventData.name}</h1>
-            <div class="d-flex mt-3">
-                <img src="${eventData.image}" class="banner_max" />
-            </div>
-        `
+        displayEventInfo(eventData);
 
         //wyswietlanie participantsów w modalu służącym do robienia kicków
-        destination = document.getElementById('users_to_kick');
-        var participants = eventData.participants;
-        for( var i = 0; i < participants.length; i++){ 
-            if ( participants[i].username == username) participants.splice(i, 1); 
-        }
-        participants.sort((a, b) => {
-            let fa = a.username.toLowerCase(), fb = b.username.toLowerCase();
-        
-            if (fa < fb) return -1;
-            if (fa > fb) return 1;
-            return 0;
-        });
+        prepareDeletingModal(eventData, username);
 
-        for(let x = 0; x < participants.length; x+=3){
-            let div = `<div class="d-flex justify-content-center mb-2">`;
-            for(let k=0;k<3;k++){
-                let participant = participants[x+k];
-                if(participant != null){
-                    div += `
-                        <button id="kick_${participant.id}" class="btn btn-light mx-1 p-1" href="${mainUrl}userprofile/${participant.id}">
-                            <img class="avatar" src="${participant.image}">
-                            <span class="text-nowrap fs-4 me-4 ms-2 fw-bold text-dark">@${participant.username}</span>
-                        </button>
-                    `
-                }
-            }
-            div += `</div>`;
-            destination.innerHTML += div;
-        }
-        addListenersForSupportingModal(participants);
+        //przygotowanie form'u do zmiany danych event'u
+        fillFormWithEventData()
+
+        //dodanie listnere'ów w supporting modalu (invite and kick)
+        addListenersForSupportingModal(eventData);
     })
-}
-
-function takeBegginingData(){
-    var url = mainUrl + `api/events/${event_id}/`;
-    try{
-        var username = document.getElementById("navusername").innerText.slice(1);
-    }
-    catch(err){
-        username = '';
-    }
-
-    fetchSingleData(url, username);
 }
 
 function addListeners(){
     var url = mainUrl + `api/events/${event_id}/`;
     const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
     try{
+        //zmiana danych event'u
+        addListenerForChangingEventData(csrftoken, url);
 
-        element = document.getElementById('event-specifics-interior');
-        element.addEventListener('click', function(e){
-            e.preventDefault();
+        //zmiana ustawienia opcji zapraszania innych user'ów przez participantów
+        addListenersToInviteOptionsButtons(true, csrftoken, url);
+        addListenersToInviteOptionsButtons(false, csrftoken, url);
 
-            var data = collectForEvent();
-            data.id = eventData.id;
-            
-            removeEmptyValues(data);
-
-            if(!data.hasOwnProperty('name')) data.name = eventData.name
-
-            console.log(data);
-            var myFlag = showErrorForEvent("badDate");
-            console.log(myFlag);
-            // if(myFlag){
-            //     fetch(url, {
-            //         method: 'PUT',
-            //         headers: {
-            //             'Content-Type': 'application/json',
-            //             'X-CSRFToken': csrftoken,
-            //         },
-            //         redirect: 'follow',
-            //         body: JSON.stringify(data),
-            //         })
-            //         .then((response) => {
-            //             response.json()
-            //         })
-            //         .then((data) => {
-            //             window.location.href = mainUrl;
-            //         })
-            //         .catch((error) => {
-            //             console.error('Error:', error);
-            //         });
-            // }
-        });
-
-        element = document.getElementById('enable_inviting');
-        element.addEventListener("click", function(e) {
-
-            e.preventDefault();
-
-            var data = eventData;
-            data.can_participants_invite = true;
-            delete data.image
-        
-            fetch(url, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrftoken,
-                },
-                redirect: 'follow',
-                body: JSON.stringify(data),
-                })
-                .then((response) => {
-                    response.json()
-                })
-                .then((data) => {
-                    window.location.href = mainUrl + `eventsite/${event_id}/`;
-                })
-                .catch((error) => {
-                    console.error('Error:', error);
-            });
-        });
-
-        element = document.getElementById('disable_inviting');
-        element.addEventListener("click", function(e) {
-
-            e.preventDefault();
-
-            var data = eventData;
-            data.can_participants_invite = false;
-            delete data.image
-        
-            fetch(url, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrftoken,
-                },
-                redirect: 'follow',
-                body: JSON.stringify(data),
-                })
-                .then((response) => {
-                    response.json()
-                })
-                .then((data) => {
-                    window.location.href = mainUrl + `eventsite/${event_id}/`;
-                })
-                .catch((error) => {
-                    console.error('Error:', error);
-            });
-        });
-
+        //dodawanie listnera do buttonu delete_event_interior
         element = document.getElementById('delete_event_interior');
         element.addEventListener("click", function(e) {
 
@@ -221,6 +74,7 @@ function addListeners(){
             });
         });
 
+        //dodawanie listnera do buttonu banner-picture-submit
         element = document.getElementById('banner-picture-submit');
         element.addEventListener("click", function(e) {
 
@@ -257,59 +111,39 @@ function addListeners(){
     catch{}
 }
 
-function addListenersForMainModal(){
+function addListenersForExteriorButtons(){
+    const modalElements = [
+          "delete-body",
+          "delete-title",
+          "kick-body",
+          "kick-title",
+          "invite-body",
+          "invite-title",
+          "picture-body",
+          "picture-title",
+          "specifics-title",
+          "specifics-body"
+    ];
+    const exteriorButtonsNames = [
+          "delete_event_exterior",
+          "kick_participant_exterior",
+          "invite_for_event_exterior",
+          "event_picture_exterior",
+          "event_specifics_exterior"
+    ]; 
     try{
-        const objects = [
-              "delete-body",
-              "delete-title",
-              "kick-body",
-              "kick-title",
-              "invite-body",
-              "invite-title",
-              "picture-body",
-              "picture-title",
-              "specifics-title",
-              "specifics-body"
-            ]; 
-
-        element = document.getElementById('delete_event_exterior');
-        element.addEventListener("click", function() {
-            displayObject(objects[0]);
-            displayObject(objects[1]);
-            mainModal.show();
-        });
-
-        element = document.getElementById('kick_participant_exterior');
-        element.addEventListener("click", function() {
-            displayObject(objects[2]);
-            displayObject(objects[3]);
-            mainModal.show();
-        });
-
-        element = document.getElementById('invite_for_event_exterior');
-        element.addEventListener("click", function() {
-            displayObject(objects[4]);
-            displayObject(objects[5]);
-            mainModal.show();
-        });
-
-        element = document.getElementById('event_picture_exterior');
-        element.addEventListener("click", function() {
-            displayObject(objects[6]);
-            displayObject(objects[7]);
-            mainModal.show();
-        });
-        element = document.getElementById('event_specifics_exterior');
-        element.addEventListener("click", function() {
-            displayObject(objects[8]);
-            displayObject(objects[9]);
-            mainModal.show();
-        });
-
+        for(let i = 0; i < 5; i++){
+            element = document.getElementById(exteriorButtonsNames[i]);
+            element.addEventListener("click", function() {
+                displayObject(modalElements[2*i]);
+                displayObject(modalElements[2*i + 1]);
+                mainModal.show();
+            });
+        }
         element = document.getElementById('close');
         element.addEventListener("click", function() {
-            for(obj of objects){
-                hideObject(obj);
+            for(element of modalElements){
+                hideObject(element);
             }
             mainModal.hide();
         });
@@ -319,67 +153,19 @@ function addListenersForMainModal(){
     }
 }
 
-function addListenersForSupportingModal(participants){
+function addListenersForSupportingModal(data){
     try{
         const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
         user_data = document.getElementById("user-data");
-        var userID = 0;
 
-        for(let i=0; i<participants.length; i++){
-            object = document.getElementById(`kick_${participants[i].id}`);
-            object.addEventListener("click", function(){
-                mainModal.hide();
-                userID = participants[i].id;
-                user_data.innerHTML = `
-                    <img class="avatar" src="${participants[i].image}">
-                    <span class="text-nowrap fs-5 me-4 ms-2 fw-bold text-dark">@${participants[i].username}</span>
-                `
-                displayObject("final-kick-title");
-                displayObject("final-kick-positive");
-                displayObject("final-kick-negative");
-                supportingModal.show();
-            })
-        }
+        // dodanie listenerów do wszystkich buttonow otwierających final-kick
+        addListenersForKickingButtons(data.participants);
 
-        element = document.getElementById('final-kick-negative');
-        element.addEventListener("click", function() {
-            hideObject("final-kick-title");
-            hideObject("final-kick-positive");
-            hideObject("final-kick-negative");
-
-            userID = 0;
-
-            supportingModal.hide();
-            mainModal.show();
-        });
-
-        element = document.getElementById('final-kick-positive');
-        element.addEventListener("click", function() {
-            var url = mainUrl + `api/events/${event_id}/`;
-            const request_data = {
-                "id": eventData.id,
-                "name": eventData.name,
-                "to_kick": userID
-            };
-            fetch(url, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrftoken,
-                },
-                redirect: 'follow',
-                body: JSON.stringify(request_data),
-                })
-                .then((response) => {
-                    response.json()
-                })
-                .then((request_data) => {
-                    window.location.href = mainUrl + `eventsite/${event_id}/`;
-                })
-                .catch((error) => {
-                    console.error('Error:', error);
-            });
-        });
+        //dodanie listnera do buttona zamykającego final-kick
+        addListenerForNotKickingParticipant();
+        
+        //dodanie listnera do buttona dokonującego kick'a
+        addListenerForKickingParticipant(csrftoken, userID)
 
         element = document.getElementById('final-invite-negative');
         element.addEventListener("click", function() {
@@ -392,9 +178,194 @@ function addListenersForSupportingModal(participants){
             supportingModal.hide();
             mainModal.hide();
         });
-
     }
     catch{
     
     }
+}
+function sendRequestPUT(request_data, csrftoken, url){
+    fetch(url, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken,
+        },
+        redirect: 'follow',
+        body: request_data,
+        })
+        .then((response) => {
+            response.json()
+        })
+        .then((data) => {
+            window.location.href = mainUrl + `eventsite/${event_id}/`;
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+}
+function addListenerForKickingParticipant(csrftoken){
+    element = document.getElementById('final-kick-positive');
+    element.addEventListener("click", function() {
+        var url = mainUrl + `api/events/${event_id}/`;
+        var request_data = {
+            "id": eventData.id,
+            "name": eventData.name,
+            "to_kick": userID
+        };
+        request_data = JSON.stringify(request_data);
+        sendRequestPUT(request_data, csrftoken, url);
+    });
+}
+function addListenerForNotKickingParticipant(){
+    element = document.getElementById('final-kick-negative');
+    element.addEventListener("click", function() {
+        hideObject("final-kick-title");
+        hideObject("final-kick-positive");
+        hideObject("final-kick-negative");
+
+        userID = 0;
+
+        supportingModal.hide();
+        mainModal.show();
+    });
+} 
+function addListenersForKickingButtons(participants){
+    for(let i=0; i<participants.length; i++){
+        object = document.getElementById(`kick_${participants[i].id}`);
+        object.addEventListener("click", function(){
+            mainModal.hide();
+            userID = participants[i].id;
+            user_data.innerHTML = `
+                <img class="avatar" src="${participants[i].image}">
+                <span class="text-nowrap fs-5 me-4 ms-2 fw-bold text-dark">@${participants[i].username}</span>
+            `
+            displayObject("final-kick-title");
+            displayObject("final-kick-positive");
+            displayObject("final-kick-negative");
+            supportingModal.show();
+        })
+    }
+}
+
+function takeBegginingData(){
+    var url = mainUrl + `api/events/${event_id}/`;
+    try{
+        var username = document.getElementById("navusername").innerText.slice(1);
+    }
+    catch(err){
+        username = '';
+    }
+
+    fetchSingleData(url, username);
+}
+function displayProperInvitingOption(data){
+    if(data.can_participants_invite){
+        try {
+            document.getElementById('enable_inviting').style.display = "none";
+        }catch{}
+    }
+    else{
+        try {
+            document.getElementById('disable_inviting').style.display = "none";
+        }catch{}
+    }
+}
+function displayParticipants(data){
+    var destination = document.getElementById('participants');
+
+    data.participants.sort((a, b) => {
+        let fa = a.username.toLowerCase(), fb = b.username.toLowerCase();
+    
+        if (fa < fb) return -1;
+        if (fa > fb) return 1;
+        return 0;
+    });
+    
+    for(participant of data.participants){
+        let x = `
+            <div class="text-center bg-light rounded my-1 me-0">
+                <a class="nav-link p-1" href="${mainUrl}userprofile/${participant.id}">
+                    <img class="avatar" src="${participant.image}">
+                    <span class="text-nowrap fs-5 me-4 ms-2 fw-bold text-dark">@${participant.username}</span>
+                </a>
+            </div>
+        `
+        destination.innerHTML += x;
+    }
+}
+function displayEventInfo(data){
+    destination = document.getElementById('main');
+    destination.innerHTML += `
+        <h1 class="display-1 fw-bold text-center">${data.name}</h1>
+        <div class="d-flex mt-3">
+            <img src="${data.image}" class="banner_max" />
+        </div>
+    `
+}
+function prepareDeletingModal(data, username){
+    destination = document.getElementById('users_to_kick');
+
+    for( var i = 0; i < data.participants.length; i++){ 
+        if ( data.participants[i].username == username) data.participants.splice(i, 1); 
+    }
+
+    for(let x = 0; x < data.participants.length; x+=3){
+        let div = `<div class="d-flex justify-content-center mb-2">`;
+        for(let k=0;k<3;k++){
+            let participant = data.participants[x+k];
+            if(participant != null){
+                div += `
+                    <button id="kick_${participant.id}" class="btn btn-light mx-1 p-1" href="${mainUrl}userprofile/${participant.id}">
+                        <img class="avatar" src="${participant.image}">
+                        <span class="text-nowrap fs-4 me-4 ms-2 fw-bold text-dark">@${participant.username}</span>
+                    </button>
+                `
+            }
+        }
+        div += `</div>`;
+        destination.innerHTML += div;
+    }
+}
+function fillFormWithEventData(){
+    document.getElementById('id_name').value = eventData.name;
+    document.getElementById('id_start_date_time').valueAsDate = new Date(eventData.start_date_time);
+    document.getElementById('id_end_date_time').valueAsDate = new Date(eventData.end_date_time);
+    document.getElementById('id_location').value = eventData.location;
+    document.getElementById('id_category').value = eventData.category;
+    document.getElementById('id_is_open').checked = eventData.is_open;
+    document.getElementById('id_is_free').checked = eventData.is_free;
+    document.getElementById('id_description').value = eventData.description;
+}
+
+function addListenerForChangingEventData(csrftoken, url){
+    element = document.getElementById('event-specifics-interior');
+    element.addEventListener('click', function(e){
+        e.preventDefault();
+
+        var data = collectForEvent();
+        data.id = eventData.id;
+        data = JSON.stringify(data);
+        
+        var myFlag = showErrorForEvent("badDate");
+        if(myFlag){
+            sendRequestPUT(data, csrftoken, url);
+        }
+
+    });
+}
+function addListenersToInviteOptionsButtons(flag, csrftoken, url){
+    if(flag) element = document.getElementById('enable_inviting');
+    else element = document.getElementById('disable_inviting');
+
+    element.addEventListener("click", function(e) {
+
+        e.preventDefault();
+
+        var data = eventData;
+        data.can_participants_invite = flag;
+        delete data.image;
+        data = JSON.stringify(data);
+    
+        sendRequestPUT(data, csrftoken, url);
+    });
 }
