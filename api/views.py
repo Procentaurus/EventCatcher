@@ -25,7 +25,9 @@ class EventList(mixins.ListModelMixin,mixins.CreateModelMixin,generics.GenericAP
         is_open = self.request.query_params.get('is_open')
         is_free = self.request.query_params.get('is_free')
         organiser = self.request.query_params.get('organiser')
-
+        organiserNeg = self.request.query_params.get('organiserneg')
+        number = self.request.query_params.get('number')
+        idNeg = self.request.query_params.get('idneg')
         if name is not None:
             queryset = queryset.filter(name__icontains=name)
         if start_date_time is not None:
@@ -43,6 +45,13 @@ class EventList(mixins.ListModelMixin,mixins.CreateModelMixin,generics.GenericAP
         if organiser is not None:
             user = MyUser.objects.get(username=organiser).id
             queryset = queryset.filter(organiser=user)
+        if organiserNeg is not None:
+            user = MyUser.objects.get(pk=organiserNeg).id
+            queryset = queryset.exclude(organiser=user)
+        if idNeg is not None:
+            queryset = queryset.exclude(id=idNeg)
+        if number is not None:
+            queryset = queryset[0:number]
         return queryset
 
     def get(self, request, *args, **kwargs):

@@ -37,7 +37,7 @@ function searchUsers(){
       })
       .then(response => response.json())
       .then(function(data){
-          datalist = JSON.parse(data)
+          datalist = JSON.parse(data);
           destination.innerHTML =  ``;
           for(let i=0;i < datalist.length; i++){
               var item = ` 

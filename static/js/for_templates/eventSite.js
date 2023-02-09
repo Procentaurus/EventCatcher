@@ -27,6 +27,9 @@ function takeBegginingData(){
         // wyswietlanie participantsów po lewej stronie
         displayParticipants(eventData);
 
+        //pobieranie danych podobnych eventow
+        getSimilarEvents(eventData);
+
         //sprawdzenie czy user jest participantem i ewentualne schowanie buttona do invite'u
         checkIfParticipant(eventData);
 
@@ -419,6 +422,44 @@ function checkIfParticipant(data){
         }
     }
     if(!flag) hideObject('invite_for_event_exterior');
+}
+function getSimilarEvents(data){
+    const myID = JSON.parse(document.getElementById('mydata').textContent);
+    var url = `http://127.0.0.1:8000/api/events?`;
+    url += `counter=10&category=${data.category}&organiserneg=${myID}&idneg=${data.id}`;
+    fetch(url)
+    .then((resp) => resp.json())
+    .then(function(datalist){
+
+        destination = document.getElementById('suggested');
+        if(datalist.length == 0) return;
+        else{
+            destination.innerHTML += `
+                <div class="d-grid gap-2 card card-body bg-dark" id="suggested2">
+                <h4 class="text-light fw-bold">You can also like :</h4>
+            `
+
+            destination = document.getElementById('suggested2');
+            for(let x of datalist){
+                if(x.id != data.id && x.organiser.id != myID){
+                    var item = `
+                    <div class="rounded bg-light p-2">
+                        Organised by <a href="${mainUrl}userprofile/${x.organiser.id}" class="text-decoration-none text-dark fw-bold">@${x.organiser.username}</a>
+                        <a href="${mainUrl}eventsite/${x.id}" class="text-decoration-none">
+                            <div class="text-center my-1">
+                                <span class="fw-bold text-nowrap text-dark">${x.name}</span><br>
+                                <img src="${x.image}" class="rounded" style="max-width: 8em; max-height:6em;">
+                            </div>
+                        </a>
+                        on ${convertDate(x.start_date_time)}
+                    </div>
+                    `
+                    destination.innerHTML += item;
+                }
+            }
+            destination.innerHTML += `</div>`;
+        }
+    })
 }
 
 ////////////////////////////////                         Funkcje uzywane w addListenersForFunctionalButtons()                        ///////////////////////////////////
