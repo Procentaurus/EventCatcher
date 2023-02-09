@@ -27,14 +27,17 @@ function takeBegginingData(){
         // wyswietlanie participantsów po lewej stronie
         displayParticipants(eventData);
 
+        //sprawdzenie czy user jest participantem i ewentualne schowanie buttona do invite'u
+        checkIfParticipant(eventData);
+
         // wyswietlanie danych eventu po srodku
         displayEventInfo(eventData);
 
-        //wyswietlanie participantsów w modalu służącym do robienia kicków
+        //wyswietlanie participantsów w modalu służącym do robienia kicków          UWAGA - usuwa organisera z data.participants
         prepareDeletingModal(eventData, username);
 
         //przygotowanie form'u do zmiany danych event'u
-        fillFormWithEventData()
+        fillFormWithEventData();
 
         //dodanie listnere'ów w supporting modalu (invite and kick)
         addListenersForSupportingModal(eventData);
@@ -47,13 +50,13 @@ function addListenersForFunctionalButtons(){
         //zmiana danych event'u
         addListenerForChangingEventData(csrftoken, url);
 
-        //zmiana ustawienia opcji zapraszania innych user'ów przez participantów
-        addListenersToInviteOptionsButtons(true, csrftoken, url);
-        addListenersToInviteOptionsButtons(false, csrftoken, url);
-
         //dodanie listnereów wpisujących nazwy użytkowników do pola participant
         element = document.getElementById('friends');
         addListenersToAllChildren(element);
+
+        //zmiana ustawienia opcji zapraszania innych user'ów przez participantów
+        addListenersToInviteOptionsButtons(true, csrftoken, url);
+        addListenersToInviteOptionsButtons(false, csrftoken, url);
 
         //dodawanie listnera do buttonu delete_event_interior
         element = document.getElementById('delete_event_interior');
@@ -124,33 +127,25 @@ function addListenersForFunctionalButtons(){
 
 function addListenersForDsiplayingMainModal(){
     const modalElements = [
-          "delete-body",
-          "delete-title",
-          "kick-body",
-          "kick-title",
-          "invite-body",
-          "invite-title",
-          "picture-body",
-          "picture-title",
-          "specifics-title",
-          "specifics-body"
+        "invite-body",
+        "invite-title",
+        "delete-body",
+        "delete-title",
+        "kick-body",
+        "kick-title",
+        "picture-body",
+        "picture-title",
+        "specifics-title",
+        "specifics-body"
     ];
     const exteriorButtonsNames = [
-          "delete_event_exterior",
-          "kick_participant_exterior",
-          "invite_for_event_exterior",
-          "event_picture_exterior",
-          "event_specifics_exterior"
+        "invite_for_event_exterior",
+        "delete_event_exterior",
+        "kick_participant_exterior",
+        "event_picture_exterior",
+        "event_specifics_exterior"
     ]; 
     try{
-        for(let i = 0; i < 5; i++){
-            element = document.getElementById(exteriorButtonsNames[i]);
-            element.addEventListener("click", function() {
-                displayObject(modalElements[2*i]);
-                displayObject(modalElements[2*i + 1]);
-                mainModal.show();
-            });
-        }
         element = document.getElementById('close');
         element.addEventListener("click", function() {
             for(element of modalElements){
@@ -162,6 +157,15 @@ function addListenersForDsiplayingMainModal(){
             document.getElementById('listOfUsers').innerHTML = "";
             document.getElementById("messages").innerText = "";
         });
+
+        for(let i = 0; i < 5; i++){
+            element = document.getElementById(exteriorButtonsNames[i]);
+            element.addEventListener("click", function() {
+                displayObject(modalElements[2*i]);
+                displayObject(modalElements[2*i + 1]);
+                mainModal.show();
+            });
+        }
     }
     catch{
 
@@ -395,6 +399,26 @@ function fillFormWithEventData(){
     document.getElementById('id_is_open').checked = eventData.is_open;
     document.getElementById('id_is_free').checked = eventData.is_free;
     document.getElementById('id_description').value = eventData.description;
+}
+
+function checkIfParticipant(data){
+    flag = false;  
+    const myID = JSON.parse(document.getElementById('mydata').textContent);
+
+    if(data.can_participants_invite == false){
+        if(data.organiser.id != myID){
+            hideObject('invite_for_event_exterior');
+            return;
+        }
+    }
+
+    for(participant of data.participants){
+        if(myID == participant.id){
+            flag = true;
+            break;
+        }
+    }
+    if(!flag) hideObject('invite_for_event_exterior');
 }
 
 ////////////////////////////////                         Funkcje uzywane w addListenersForFunctionalButtons()                        ///////////////////////////////////
