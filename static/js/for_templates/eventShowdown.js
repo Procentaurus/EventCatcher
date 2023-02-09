@@ -7,7 +7,7 @@ function fetchData(url, destination, username){
         var datalist = data
         for(var i in datalist){
 
-            var myBadge = ``;
+            var myBadge = "";
 
             if(datalist[i].organiser.username == username){
                 myBadge = `<span class="badge rounded-pill bg-info position-absolute top-0 end-0 mt-1 me-1 fs-5 text-dark">Your event</span>`
