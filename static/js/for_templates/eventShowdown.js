@@ -7,7 +7,7 @@ function fetchData(url, destination, username){
         var datalist = data
         for(var i in datalist){
 
-            var myBadge = null;
+            var myBadge = ``;
 
             if(datalist[i].organiser.username == username){
                 myBadge = `<span class="badge rounded-pill bg-info position-absolute top-0 end-0 mt-1 me-1 fs-5 text-dark">Your event</span>`
@@ -21,13 +21,14 @@ function fetchData(url, destination, username){
 
             var item = `
                 <li id="data-row-${i}" class="list-group-item bg-dark shadow mb-4 rounded-3">
-                    <a href="${mainUrl}eventsite/${datalist[i].id}" class="text-decoration-none">
+                    <a href="${mainUrl}eventsite/${datalist[i].id}/" class="text-decoration-none text-light">
                         <div class="row">
                             <div class="col-sm-6">
                                 <div class="row mx-1">
                                     <div class="col-sm-12 my-4">
                                         <h1 class="fw-bold text-white">${datalist[i].name}</h1>
-                                        <h4 class="fw-bold mt-0"><a href="${mainUrl}userprofile/${datalist[i].organiser.id}" class="text-decoration-none text-light">@${datalist[i].organiser.username}</a></h4>
+                                        <h4 class="fw-bold mt-0">@${datalist[i].organiser.username}</h4>
+                                        
                                         ${myBadge}
                                     </div>
                                 </div>

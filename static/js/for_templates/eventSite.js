@@ -1,13 +1,21 @@
 takeBegginingData();
-addListenersForExteriorButtons();
-addListeners();
+addListenersForDsiplayingMainModal();
+addListenersForFunctionalButtons();
 
 var eventData;
 var mainModal = new bootstrap.Modal(document.getElementById('mainModal'));
 var supportingModal = new bootstrap.Modal(document.getElementById('supportingModal'));
 var userID;
 
-function fetchSingleData(url, username){
+function takeBegginingData(){
+    var url = mainUrl + `api/events/${event_id}/`;
+    try{
+        var username = document.getElementById("navusername").innerText.slice(1);
+    }
+    catch(err){
+        username = '';
+    }
+
     fetch(url)
     .then((resp) => resp.json())
     .then(function(data){
@@ -32,8 +40,7 @@ function fetchSingleData(url, username){
         addListenersForSupportingModal(eventData);
     })
 }
-
-function addListeners(){
+function addListenersForFunctionalButtons(){
     var url = mainUrl + `api/events/${event_id}/`;
     const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
     try{
@@ -43,6 +50,10 @@ function addListeners(){
         //zmiana ustawienia opcji zapraszania innych user'ów przez participantów
         addListenersToInviteOptionsButtons(true, csrftoken, url);
         addListenersToInviteOptionsButtons(false, csrftoken, url);
+
+        //dodanie listnereów wpisujących nazwy użytkowników do pola participant
+        element = document.getElementById('friends');
+        addListenersToAllChildren(element);
 
         //dodawanie listnera do buttonu delete_event_interior
         element = document.getElementById('delete_event_interior');
@@ -106,12 +117,12 @@ function addListeners(){
             .catch((error) => {
                 console.error('Error:', error);
             });
-        })  
+        })
     }
     catch{}
 }
 
-function addListenersForExteriorButtons(){
+function addListenersForDsiplayingMainModal(){
     const modalElements = [
           "delete-body",
           "delete-title",
@@ -146,6 +157,10 @@ function addListenersForExteriorButtons(){
                 hideObject(element);
             }
             mainModal.hide();
+            userID = 0;
+            document.getElementById('participant').value = "";
+            document.getElementById('listOfUsers').innerHTML = "";
+            document.getElementById("messages").innerText = "";
         });
     }
     catch{
@@ -161,28 +176,84 @@ function addListenersForSupportingModal(data){
         // dodanie listenerów do wszystkich buttonow otwierających final-kick
         addListenersForKickingButtons(data.participants);
 
+        // dodanie listenera otwierającego przygotowany do invite'a supporting modal
+        element = document.getElementById('checkTheUser');
+        element.addEventListener('click', function(e){
+            e.preventDefault();
+
+            var user_name = document.getElementById('participant').value;
+            var url =  mainUrl + `eventsite/${event_id}/?user_name=${user_name}`;
+
+            if(user_name == ""){
+                destination.innerHTML = "";
+                return;
+            }
+
+            fetch(url, {
+                method: "GET",
+            })
+            .then(response => response.json())
+            .then(function(data){
+                if(data.message == null){
+
+                    userID = data.id;
+                    user_data.innerHTML = `
+                        <img class="avatar" src="${data.image}">
+                        <span class="text-nowrap fs-5 me-4 ms-2 fw-bold text-dark">@${data.username}</span>
+                    `
+                    mainModal.hide();
+                    displayObject("final-invite-title");
+                    displayObject("final-invite-positive");
+                    displayObject("final-invite-negative");
+                    supportingModal.show();
+                    document.getElementById("messages").innerText = "";
+                }
+                else{
+                    document.getElementById("messages").innerText = data.message;
+                }
+            });
+        })
+
         //dodanie listnera do buttona zamykającego final-kick
-        addListenerForNotKickingParticipant();
+        addListenerForNotMakingFinalAction('kick');
+
+        //dodanie listnera do buttona zamykającego final-invite
+        addListenerForNotMakingFinalAction('invite');
         
         //dodanie listnera do buttona dokonującego kick'a
-        addListenerForKickingParticipant(csrftoken, userID)
+        addListenerForKickingParticipant(csrftoken, userID);
 
-        element = document.getElementById('final-invite-negative');
-        element.addEventListener("click", function() {
-            supportingModal.hide();
-            mainModal.hide();
-        });
-
+        //dodanie listnera do buttona wysylającego invitation
         element = document.getElementById('final-invite-positive');
         element.addEventListener("click", function() {
+            
+            const data = {'participant': userID};
+            const url = mainUrl + `eventsite/${event_id}/`;
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken,
+                },
+                redirect: 'follow',
+                body: JSON.stringify(data),
+                })
+                .then((response) => {
+                    response.json()
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+            });
             supportingModal.hide();
-            mainModal.hide();
         });
     }
     catch{
     
     }
 }
+
+///////////////////////                            Funkcje wykorzystywane w addListenersForSupportingModal()                           /////////////////////////////////
 function sendRequestPUT(request_data, csrftoken, url){
     fetch(url, {
         method: 'PUT',
@@ -216,12 +287,12 @@ function addListenerForKickingParticipant(csrftoken){
         sendRequestPUT(request_data, csrftoken, url);
     });
 }
-function addListenerForNotKickingParticipant(){
-    element = document.getElementById('final-kick-negative');
+function addListenerForNotMakingFinalAction(option){
+    element = document.getElementById(`final-${option}-negative`);
     element.addEventListener("click", function() {
-        hideObject("final-kick-title");
-        hideObject("final-kick-positive");
-        hideObject("final-kick-negative");
+        hideObject(`final-${option}-title`);
+        hideObject(`final-${option}-positive`);
+        hideObject(`final-${option}-negative`);
 
         userID = 0;
 
@@ -246,18 +317,7 @@ function addListenersForKickingButtons(participants){
         })
     }
 }
-
-function takeBegginingData(){
-    var url = mainUrl + `api/events/${event_id}/`;
-    try{
-        var username = document.getElementById("navusername").innerText.slice(1);
-    }
-    catch(err){
-        username = '';
-    }
-
-    fetchSingleData(url, username);
-}
+///////////////////////////////////////                     Funkcje wykorzystywane w takeBegginningData()                            ///////////////////////////////////
 function displayProperInvitingOption(data){
     if(data.can_participants_invite){
         try {
@@ -337,6 +397,7 @@ function fillFormWithEventData(){
     document.getElementById('id_description').value = eventData.description;
 }
 
+////////////////////////////////                         Funkcje uzywane w addListenersForFunctionalButtons()                        ///////////////////////////////////
 function addListenerForChangingEventData(csrftoken, url){
     element = document.getElementById('event-specifics-interior');
     element.addEventListener('click', function(e){
@@ -368,4 +429,45 @@ function addListenersToInviteOptionsButtons(flag, csrftoken, url){
     
         sendRequestPUT(data, csrftoken, url);
     });
+}
+
+//////////////////////////////                                Funkcje do obsługi invite'owania nowych user'ów                         //////////////////////////////////
+
+function lookForUsers(){
+    var user_name = document.getElementById('participant').value;
+    const me = JSON.parse(document.getElementById('mydata').textContent);
+    var url =  mainUrl + `lookforfriends/${me}/?user_name=${user_name}`;
+    var destination = document.getElementById('listOfUsers');
+
+    if(user_name == ""){
+        destination.innerHTML = "";
+        return;
+    }
+
+    fetch(url, {
+        method: "GET",
+    })
+    .then(response => response.json())
+    .then(function(data){
+        datalist = JSON.parse(data)
+        destination.innerHTML =  ``;
+        for(let i=0;i < datalist.length; i++){
+            var item = ` 
+            <button type="button" class="btn btn-dark rounded" id="${datalist[i].fields.username}" name="${datalist[i].fields.id}">
+                <img class="avatar" src="/images/${datalist[i].fields.image}">
+                <span class="text-nowrap fs-4 me-4 ms-2 fw-bold text-light">@${datalist[i].fields.username}</span>
+            </button>
+            `
+            destination.innerHTML += item;
+        }
+        addListenersToAllChildren(destination);
+    });
+}
+
+function addListenersToAllChildren(destination){
+    for (const child of destination.children) {
+        child.addEventListener('click', function(e){
+            document.getElementById('participant').value = child.id;
+        });
+    }
 }

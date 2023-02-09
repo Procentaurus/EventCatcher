@@ -116,17 +116,48 @@
                         </a>
                     </div>
                 </div>
+                {% if invitations|length != 0 %}
+                <div class="row mb-2">
+                    <div class="col-lg-12 d-grid gap-2 card card-body bg-dark">
+                        <h4 class="text-light fw-bold">Invitations for events :</h4>
+                        {% for invitation in invitations %}
+                            <div class="rounded bg-light p-2">
+                                <span class="fw-bold"><a href="{% url 'userprofile' invitation.inviting.id %}" class="text-decoration-none text-dark">@{{invitation.inviting}}</a></span>
+                                 is inviting you to take part in event
+                                <a href="{% url 'eventsite' invitation.event.id %}" class="text-decoration-none text-dark">
+                                    <div class="text-center">
+                                        <span class="fw-bold text-nowrap">{{invitation.event}}</span><br>
+                                        <img src="{{invitation.event.image.url}}" class="rounded mt-1" style="max-width: 8em; max-height:6em;">
+                                    </div>
+                                </a>
+                                <div class="text-center mt-2">
+                                    <a class="btn btn-success mb-1 px-3" href="{% url 'acceptinvitation' invitation.id %}" role="button">Accept</a>
+                                    <a class="btn btn-danger mb-1 px-3" href="{% url 'rejectinvitation' invitation.id %}" role="button">Reject</a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
                 {% endif %}
-                <div clas="row mb-2">
-                    <div class="col-lg-12">
-                        Your invitations for events
-                    </div>
-                </div>
                 <div class="row">
-                    <div class="col-lg-12">
-                        Your upcoming events
+                    <div class="col-lg-12 d-grid gap-2 card card-body bg-dark">
+                        <h4 class="text-light fw-bold">Upcoming events :</h4>
+                        {% for event in events %}
+                        <div class="rounded bg-light p-2">
+                            You have an upcoming event&nbsp;
+                            <a href="{% url 'eventsite' event.id %}" class="text-decoration-none">
+                                <div class="text-center my-1">
+                                    <span class="fw-bold text-nowrap text-dark">{{event.name}}</span><br>
+                                    <img src="{{event.image.url}}" class="rounded" style="max-width: 8em; max-height:6em;">
+                                </div>
+                            </a>
+                            on {{event.start_date_time}}
+                        </div>
+                        {% endfor %}
+
                     </div>
                 </div>
+                {% endif %}
             </div>
         </div>
     </div>

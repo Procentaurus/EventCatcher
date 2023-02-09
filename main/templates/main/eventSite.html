@@ -44,7 +44,36 @@
               <button type="button" class="btn-close" id="close"></button>
             </div>
             <div class="modal-body" id="invite-body" hidden>
-              1
+                <div class="row">
+                    <div class="col-lg-12">
+                        <form method="GET">
+                            {% csrf_token %}
+                            <div class="d-flex justify-content-center">
+                              <div class="input-group mt-1">
+                                  <input id="participant" name="user_name" type="text" class="form-control" placeholder="Name of the user..." onkeyup="lookForUsers()">
+                                  <button class="btn btn-success p-0" id="checkTheUser"><span class="fs-2">&#9993;</span></button>
+                              </div>
+                            </div>
+                        <form>
+                        {{request.user.id|json_script:"mydata" }}
+                    </div>
+                </div>
+                <div id="listOfUsers" class="d-grid" style="position:absolute; float:right; z-index:1;"></div>
+                <div class="row">
+                    <div class="col-lg-6"></div>
+                    <div class="col-lg-6">
+                        <div id="messages" class="text-danger fw-bold"></div>
+                        <h3 class="fw-bold text-dark mt-5">Invite your friends :</h3>
+                        <div id="friends">
+                        {% for friend in friends %}
+                            <button type="button" class="btn btn-dark rounded" id="{{friend.username}}">
+                                <img class="avatar" src="{{friend.image.url}}">
+                                <span id="{{friend.username}}" class="text-nowrap fs-4 me-4 ms-2 fw-bold text-light">@{{friend.username}}</span>
+                            </button>
+                        {% endfor %}
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="modal-body" id="specifics-body" hidden>
                 <form>
@@ -109,10 +138,10 @@
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content">
               <div class="modal-header">
-                <h2 class=" modal-title fw-bold text-center w-100" id="final-invite-title" hidden>Are you sure that you want to send an invitation to this user ?</h2>
+                <h2 class=" modal-title fw-bold text-center w-100" id="final-invite-title" hidden>Are you sure that you want to invite this user ?</h2>
                 <h2 class="modal-title fw-bold text-center w-100" id="final-kick-title" hidden>Are you sure you want to kick this participant out ?</h2>
               </div>
-              <div id="user-data" class="text-center bg-light rounded my-1 me-0 w-100">
+              <div id="user-data" class="text-center bg-light rounded mt-1 me-0 w-100">
 
               </div>
               <div class="modal-body w-100 d-grid gap-2" id="final-kick-body">
@@ -121,8 +150,8 @@
               </div>
               
               <div class="modal-body w-100 d-grid gap-2" id="final-invite-body">
-                  <button id="final-kick-negative" class="btn btn-lg btn-outline-secondary" hidden><b>Do not invite him</b></button>
-                  <button id="final-kick-positive" class="btn btn-lg btn-outline-danger" hidden><b>Invite the participant out</b></button>
+                  <button id="final-invite-negative" class="btn btn-lg btn-outline-secondary" hidden><b>Do not invite him</b></button>
+                  <button id="final-invite-positive" class="btn btn-lg btn-outline-success" hidden><b>Invite the participant</b></button>
               </div>
           </div>
         </div>

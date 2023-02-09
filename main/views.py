@@ -6,6 +6,7 @@ from itertools import chain
 from django.core import serializers
 from django.http import JsonResponse
 from datetime import datetime
+import json
 
 from .forms import *
 from api.forms import *
@@ -13,6 +14,7 @@ from api.models import Event
 from .decorators import *
 from .models import *
 from .functions import *
+
 
 def home(request):
     return render(request, 'main/home.html')
@@ -105,6 +107,14 @@ def userProfile(request, pk):
     user = MyUser.objects.get(pk=pk)
     friendRequests = FriendRequest.objects.filter(to_user=user)
     friends = user.friends.all()
+    invitations = Invitation.objects.filter(invited=user)
+
+    events = Event.objects.all()
+    for event in events:
+        if user not in event.participants.all():
+            events = events.exclude(id=event.id)
+    events = events.order_by('start_date_time')[:5]
+
     form1 = AvatarForm()
 
     # sprawdzenie, czy któryś z użytkowników nie wysłał już zaproszenia do drugiego
@@ -123,6 +133,8 @@ def userProfile(request, pk):
         'user': user,
         'friendRequest': friendRequest,
         'avatarForm': form1,
+        'invitations': invitations,
+        'events': events
     }
     return render(request, 'main/userProfile.html', context)
 
@@ -176,7 +188,11 @@ def lookForFriends(request, pk):
     q = request.GET.get('user_name')
     if q is not None:
         if q != "":
-            data = serializers.serialize('json', MyUser.objects.filter(Q(username__icontains=q) | Q(email__icontains=q))[:6], fields=["username", "image"])
+            users = MyUser.objects.filter(Q(username__icontains=q) | Q(email__icontains=q))
+            users = users.exclude(id=request.user.id)
+            for friend in request.user.friends.all():
+                users = users.exclude(id = friend.id)
+            data = serializers.serialize('json', users[:6], fields=["username", "image"])
             return JsonResponse(data, safe=False)
 
     user = MyUser.objects.get(pk=pk)
@@ -219,12 +235,60 @@ def eventSite(request, pk):
         event = Event.objects.get(id=pk)
     except:
         return redirect('eventshowdown')
+    
+    #obsługa zapytan asynchronicznych
+    q = request.GET.get('user_name')
+    newOne = None
+    if q is not None:
+        try:
+            newOne = MyUser.objects.get(username=q)
+        except:
+            return JsonResponse({'message':'There is no such user.'}, safe=False)
+        
+        if newOne is not None and newOne not in event.participants.all():
+                return JsonResponse({'username':newOne.username,'image':newOne.image.url,'id':newOne.id}, safe=False)
+        else:
+           return JsonResponse({'message':'The user is already a participant of this event.'}, safe=False)
 
-    if event is not None:
-        context = {
-            'event_id': pk,
-            'user': event.organiser,
-            'form': form
-        }
-        return render(request, 'main/eventSite.html', context)
+    if request.method == 'POST':
+
+        post_data = json.loads(request.body.decode("utf-8"))
+        newParticipantID = post_data.get('participant')
+        newParticipant = MyUser.objects.get(id=newParticipantID)
+
+        try:
+            possibleinvitation = Invitation.objects.get(inviting=request.user, invited=newParticipant,event=event)
+        except:
+            invitation = Invitation(inviting=request.user, invited=newParticipant,event=event, send_date=datetime.now().date())
+            invitation.save()
+            return redirect(request.META['HTTP_REFERER'])
+
+    friends = request.user.friends.all()[0:9]
+    context = {
+        'event_id': pk,
+        'user': event.organiser,
+        'form': form,
+        'friends': friends
+    }
+    return render(request, 'main/eventSite.html', context)
+
+@unauthenticatedUser
+def acceptInvitation(request, pk):
+    invitation = Invitation.objects.get(id=pk)
+    if request.user == invitation.invited:
+        invitation.event.participants.add(invitation.invited)
+
+        possibleOtherInvitations = Invitation.objects.filter(event=invitation.event, invited=invitation.invited)
+        for possibleInvitation in possibleOtherInvitations:
+            possibleInvitation.delete()
+        invitation.delete()
+
+    return redirect(request.META['HTTP_REFERER'])
+
+@unauthenticatedUser
+def rejectInvitation(request, pk):
+    invitation = Invitation.objects.get(id=pk)
+    if request.user == invitation.invited:
+        invitation.delete()
+        
     return redirect(request.META['HTTP_REFERER'])
