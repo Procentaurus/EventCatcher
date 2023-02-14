@@ -262,8 +262,12 @@ def eventSite(request, pk):
             invitation = Invitation(inviting=request.user, invited=newParticipant,event=event, send_date=datetime.now().date())
             invitation.save()
             return redirect(request.META['HTTP_REFERER'])
+    friends = None
+    try:
+        friends = request.user.friends.all()[0:9]
+    except:
+        pass
 
-    friends = request.user.friends.all()[0:9]
     context = {
         'event_id': pk,
         'user': event.organiser,
