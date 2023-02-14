@@ -8,9 +8,6 @@ var supportingModal = new bootstrap.Modal(document.getElementById('supportingMod
 var editModal = new bootstrap.Modal(document.getElementById('editMessageModal'));
 var userID;
 
-editModal.show();
-
-
 function takeBegginingData(){
     var url = mainUrl + `api/events/${event_id}/`;
     try{
@@ -467,6 +464,8 @@ function getSimilarEvents(data){
 function prepareAnnouncementsBoard(data){
     var baseUrl = mainUrl + `api/messages`;
     var url = baseUrl + `?event=${data.id}`;
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
     fetch(url)
     .then((resp) => resp.json())
     .then(function(datalist){
@@ -493,7 +492,7 @@ function prepareAnnouncementsBoard(data){
                 var buttons = "";
                 const myID = JSON.parse(document.getElementById('mydata').textContent);
                 if(message.user.id == myID) buttons = `
-                    <button type="button" id="message-edit-${message.id}" class="btn btn-outline-info btn-sm" onclick="displayModalToEditMessage()">Edit message</button>
+                    <button type="button" id="message-edit-${message.id}" class="btn btn-outline-info btn-sm">Edit message</button>
                     <button type="button" id="message-delete-${message.id}" class="btn btn-outline-danger btn-sm">Delete message</button>
                 `
                 else if(data.organiser.id == myID) buttons = `
@@ -508,36 +507,16 @@ function prepareAnnouncementsBoard(data){
                     </div>
                 `
                 destination.innerHTML += item;
-                if(buttons != ""){
-                    element = document.getElementById(`message-delete-${message.id}`);
-                    element.addEventListener('click', function(){
-
-                        url = baseUrl + `/${message.id}/`;
-                        const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-                        var data = message;
-                        fetch(url, {
-                            method: 'DELETE',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRFToken': csrftoken,
-                            },
-                            redirect: 'follow',
-                            body: JSON.stringify(data),
-                            })
-                            .then((response) => {
-                                response.json()
-                            })
-                            .then((datalist) => {
-                                window.location.href = mainUrl;
-                            })
-                            .catch((error) => {
-                                console.error('Error:', error);
-                        });
-                    })
-                }
             }
         }
         destination.innerHTML += `</div>`;
+
+        for(var message of datalist){
+            url = baseUrl + `/${message.id}/`;
+
+            prepareEditModal(message, csrftoken,url);
+            prepareDeleteOfMessage(message, csrftoken, url);
+        }
     })
 }
 
@@ -549,6 +528,60 @@ function checkIfParticipant(participants){
         }
     }
     return false;
+}
+
+function prepareDeleteOfMessage(message, csrftoken, url){
+    try{
+        element = document.getElementById(`message-delete-${message.id}`);
+        element.addEventListener('click', function(){
+
+            fetch(url, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken,
+                },
+                redirect: 'follow',
+                body: JSON.stringify(message),
+                })
+                .then((response) => {
+                    response.json()
+                })
+                .then((datalist) => {
+                    window.location.href = mainUrl + `eventsite/${event_id}/`;
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+            });
+        })
+    }
+    catch{}
+}
+
+function prepareEditModal(message, csrftoken, url){
+    try{
+        element = document.getElementById(`message-edit-${message.id}`);
+        element.addEventListener('click', function(e){
+            e.preventDefault();
+
+            textarea = document.getElementById('message-body');
+            textarea.value = message.content;
+
+            document.getElementById('final-edit-positive').addEventListener('click', function(e){
+
+                e.preventDefault();
+
+                requestData = message;
+                requestData.content = textarea.value;
+                delete requestData.event;
+                sendRequestPUT(requestData, csrftoken, url);
+            })
+            editModal.show();
+        })
+    }
+    catch{
+        
+    }
 }
 
 ////////////////////////////////                         Funkcje uzywane w addListenersForFunctionalButtons()                        ///////////////////////////////////
