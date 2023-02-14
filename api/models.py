@@ -58,15 +58,16 @@ class Invitation(models.Model):
 class Message(models.Model):
     user = models.ForeignKey(MyUser, on_delete=models.CASCADE)
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
-    body = models.TextField()
+    content = models.TextField()
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
+    isSpecial = models.BooleanField(null=True, default=False)
 
     class Meta:
-        ordering = ['updated', 'created']
+        ordering = ['-isSpecial','-updated', '-created']
 
     def __str__(self):
-        if len(self.body) > 100:
-            return self.body[0:100]+" ..."
+        if len(self.content) > 100:
+            return self.content[0:99]+" ..."
         else:
-            return self.body
+            return self.content

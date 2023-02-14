@@ -16,12 +16,7 @@
     background-repeat: no-repeat;
 }
 .eventback{
-    height: 100vh;
-    min-height: 500px;
-    background-image: url("/static/images/eventbackground.webp");
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
+    background-image: linear-gradient(to right, #b8e3fc ,#dcadf7, #b8e3fc);
 }
 #logofont{
     font-family:'Times New Roman', Times, serif;

@@ -31,10 +31,13 @@ function takeBegginingData(){
         getSimilarEvents(eventData);
 
         //sprawdzenie czy user jest participantem i ewentualne schowanie buttona do invite'u
-        checkIfParticipant(eventData);
+        displayInviteButton(eventData);
 
         // wyswietlanie danych eventu po srodku
         displayEventInfo(eventData);
+
+        //wyswietla scrollable box z wiadomościami participantow
+        prepareAnnouncementsBoard(eventData);
 
         //wyswietlanie participantsów w modalu służącym do robienia kicków          UWAGA - usuwa organisera z data.participants
         prepareDeletingModal(eventData, username);
@@ -367,6 +370,8 @@ function displayEventInfo(data){
         <div class="d-flex mt-3">
             <img src="${data.image}" class="banner_max" />
         </div>
+        <h3 class="text-center my-4">On the ${convertDate(data.start_date_time)}  to  ${convertDate(data.end_date_time)}</h3>
+        <p class="text-center mt-2">${data.description}</p>
     `
 }
 function prepareDeletingModal(data, username){
@@ -404,8 +409,7 @@ function fillFormWithEventData(){
     document.getElementById('id_description').value = eventData.description;
 }
 
-function checkIfParticipant(data){
-    flag = false;  
+function displayInviteButton(data){
     const myID = JSON.parse(document.getElementById('mydata').textContent);
 
     if(data.can_participants_invite == false){
@@ -415,13 +419,7 @@ function checkIfParticipant(data){
         }
     }
 
-    for(participant of data.participants){
-        if(myID == participant.id){
-            flag = true;
-            break;
-        }
-    }
-    if(!flag) hideObject('invite_for_event_exterior');
+    if(!checkIfParticipant(data.participants)) hideObject('invite_for_event_exterior');
 }
 function getSimilarEvents(data){
     const myID = JSON.parse(document.getElementById('mydata').textContent);
@@ -460,6 +458,66 @@ function getSimilarEvents(data){
             destination.innerHTML += `</div>`;
         }
     })
+}
+
+function prepareAnnouncementsBoard(data){
+
+    var url = `http://127.0.0.1:8000/api/messages?event=${data.id}`;
+    fetch(url)
+    .then((resp) => resp.json())
+    .then(function(datalist){
+        if(datalist.length == 0) return;
+        else{
+            destination = document.getElementById('main');
+            destination.innerHTML += `
+                <h2 class="fw-bold ms-2 mb-3 mt-5"> Announcements and Questions :</h2>
+                <div id="messages" class="overflow-auto p-4 rounded shadow bg-dark" style="max-height: 30em;">
+            `
+    
+            destination = document.getElementById('messages');
+            for(var message of datalist){
+
+                var starCode = "";
+                if(message.isSpecial) starCode = `<span class="fs-4">&#11088;</span>`;
+
+                var buttons = "";
+                const myID = JSON.parse(document.getElementById('mydata').textContent);
+                if(message.user.id == myID) buttons = `
+                    <button class="btn btn-outline-info btn-sm" onclick="displayModalToEditMessage()">Edit message</button>
+                    <button class="btn btn-outline-danger btn-sm" onclick="deleteMessage()">Delete message</button>
+                `
+                else if(data.organiser.id == myID) buttons = `
+                    <button class="btn btn-outline-danger btn-sm" onclick="deleteMessage()">Delete message</button>
+                `
+
+                var item = `
+                    <div class="p-2 text-light mb-2">
+                        <span class="fs-4 fw-bold">@${message.user.username}</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${convertDate(message.updated)}
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${starCode}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${buttons}<br>
+                        ${message.content}<br>
+                    </div>
+                `
+                destination.innerHTML += item;
+            }
+            destination.innerHTML += `</div>`
+        }
+    })
+    function deleteMessage(){
+
+    }
+    function displayModalToEditMessage(){
+        
+    }
+}
+
+function checkIfParticipant(participants){
+    const myID = JSON.parse(document.getElementById('mydata').textContent);
+    for(participant of participants){
+        if(myID == participant.id){
+            return true;
+        }
+    }
+    return false;
 }
 
 ////////////////////////////////                         Funkcje uzywane w addListenersForFunctionalButtons()                        ///////////////////////////////////

@@ -14,3 +14,4 @@ class InvitationAdmin(admin.ModelAdmin):
 
 admin.site.register(Invitation, InvitationAdmin)
 admin.site.register(Event, EventAdmin)
+admin.site.register(Message)
