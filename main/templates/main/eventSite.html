@@ -161,15 +161,16 @@
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content">
             <div class="modal-header">
-              <h3 class="modal-title fw-bold">Edit your message</h3>
-              <h3 class="modal-title fw-bold">Removing the message</h3>
+              <h3 id="edit-message-title" class="modal-title fw-bold" hidden>Edit your message</h3>
+              <h3 id="delete-message-title" class="modal-title fw-bold" hidden>Removing the message</h3>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
+                <h3 id="message-author" class="fw-bold"></h3>
                 <form class="d-grid gap-2" rows="6">
-                    <textarea id="message-body" class="form-control rounded shadow" rows="6"></textarea>
-                    <button id="final-edit-positive" class="btn btn-lg btn-outline-success"><b>Save your changes</b></button>
-                    <button id="final-delete-positive" class="btn btn-lg btn-outline-danger"><b>Delete the message</b></button>
+                    <textarea id="message-body" class="form-control rounded shadow" rows="8"></textarea>
+                    <button id="final-edit-positive" class="btn btn-lg btn-outline-success" hidden><b>Save your changes</b></button>
+                    <button id="final-delete-positive" class="btn btn-lg btn-outline-danger" hidden><b>Delete the message</b></button>
                 </form>
             </div>
           </div>

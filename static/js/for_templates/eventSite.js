@@ -465,6 +465,7 @@ function prepareAnnouncementsBoard(data){
     var baseUrl = mainUrl + `api/messages`;
     var url = baseUrl + `?event=${data.id}`;
     const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const myID = JSON.parse(document.getElementById('mydata').textContent);
 
     fetch(url)
     .then((resp) => resp.json())
@@ -475,49 +476,68 @@ function prepareAnnouncementsBoard(data){
             <h2 class="fw-bold ms-2 mb-3 mt-5"> Announcements and Questions :</h2>
             <div id="messages" class="overflow-auto p-4 rounded shadow bg-dark" style="max-height: 35em;">
                 <div class="input-group mb-2 p-2">
-                    <input type="text" class="form-control text-light bg-dark" placeholder="Write your message">
+                    <input type="text" class="form-control text-light bg-dark" id="message-send-input" placeholder="Write your message">
+                    ${setPriorityButton(data, myID)}
                     <button class="btn btn-outline-light" type="button" id="sendMessage">Send message</button>
                 </div>
         `
 
-        if(datalist.length == 0) return;
-        else{
+        if(datalist.length > 0){
 
             destination = document.getElementById('messages');
             for(var message of datalist){
-
-                var starCode = "";
-                if(message.isSpecial) starCode = `<span class="fs-4">&#11088;</span>`;
-
-                var buttons = "";
-                const myID = JSON.parse(document.getElementById('mydata').textContent);
-                if(message.user.id == myID) buttons = `
-                    <button type="button" id="message-edit-${message.id}" class="btn btn-outline-info btn-sm">Edit message</button>
-                    <button type="button" id="message-delete-${message.id}" class="btn btn-outline-danger btn-sm">Delete message</button>
-                `
-                else if(data.organiser.id == myID) buttons = `
-                    <button id="message-delete-${message.id}" class="btn btn-outline-danger btn-sm">Delete message</button>
-                `
-
-                var item = `
-                    <div class="p-2 text-light mb-2">
-                        <span class="fs-4 fw-bold">@${message.user.username}</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${convertDate(message.updated)}
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${starCode}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${buttons}<br>
-                        ${message.content}<br>
-                    </div>
-                `
-                destination.innerHTML += item;
+                createViewOfMessage(message, destination, data, myID)
             }
         }
         destination.innerHTML += `</div>`;
-
-        for(var message of datalist){
-            url = baseUrl + `/${message.id}/`;
-
-            prepareEditModal(message, csrftoken,url);
-            prepareDeleteOfMessage(message, csrftoken, url);
-        }
+        addEventListenersForMessagesButtons(datalist, csrftoken, baseUrl);
     })
+}
+function addEventListenersForMessagesButtons(datalist, csrftoken, baseUrl){
+    for(var message of datalist){
+        url = baseUrl + `/${message.id}/`;
+
+        prepareEditModal(message, csrftoken, url);
+        prepareDeleteOfMessage(message, csrftoken, url);
+        //addListenerForMarkingMessages();
+    }
+    addListenerForSendingMessages(csrftoken, baseUrl+'/');
+}
+function setPriorityButton(data, myID){
+    if(data.organiser.id == myID)
+        return `<span class="input-group-text bg-dark text-light">Mark :</span>
+                <div class="input-group-text bg-dark">
+                    <input class="form-check-input" type="checkbox" name="id_is_open" id="id_is_open" value="True">
+                </div>`
+    else return ""
+}
+function createViewOfMessage(message, destination, data, myID){
+    var starCode = "";
+    if(message.isSpecial) starCode = `<span class="fs-4">&#11088;</span>`;
+
+    var buttons = "";
+    if(message.user.id == myID) buttons = `
+        <button type="button" id="message-edit-${message.id}" class="btn btn-outline-info btn-sm">Edit message</button>
+        <button type="button" id="message-delete-${message.id}" class="btn btn-outline-danger btn-sm">Delete message</button>
+    `
+    if(data.organiser.id == myID) buttons = `
+        <button id="message-mark-${message.id}" class="btn btn-outline-info btn-sm">Set priority</button>
+        <button id="message-delete-${message.id}" class="btn btn-outline-danger btn-sm">Delete message</button>
+    `
+    if(data.organiser.id == myID && message.user.id == myID) buttons = `
+        <button type="button" id="message-edit-${message.id}" class="btn btn-outline-info btn-sm">Edit message</button>
+        <button id="message-mark-${message.id}" class="btn btn-outline-info btn-sm">Set priority</button>
+        <button id="message-delete-${message.id}" class="btn btn-outline-danger btn-sm">Delete message</button>
+    `
+
+    var item = `
+        <div class="p-2 text-light mb-2">
+            <span class="fs-4 fw-bold">@${message.user.username}</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${convertDate(message.updated)}
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${starCode}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${buttons}<br>
+            ${message.content}<br>
+        </div>
+    `
+    destination.innerHTML += item;
 }
 
 function checkIfParticipant(participants){
@@ -533,26 +553,41 @@ function checkIfParticipant(participants){
 function prepareDeleteOfMessage(message, csrftoken, url){
     try{
         element = document.getElementById(`message-delete-${message.id}`);
-        element.addEventListener('click', function(){
+        element.addEventListener('click', function(e){
 
-            fetch(url, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrftoken,
-                },
-                redirect: 'follow',
-                body: JSON.stringify(message),
-                })
-                .then((response) => {
-                    response.json()
-                })
-                .then((datalist) => {
-                    window.location.href = mainUrl + `eventsite/${event_id}/`;
-                })
-                .catch((error) => {
-                    console.error('Error:', error);
-            });
+            e.preventDefault()
+
+            textarea = document.getElementById('message-body');
+            textarea.value = message.content;
+            textarea.setAttribute('readonly', true);
+            document.getElementById('message-author').innerText = '@' + message.user.username;
+
+            document.getElementById('final-delete-positive').addEventListener('click', function(e){
+
+                e.preventDefault();
+
+                fetch(url, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRFToken': csrftoken,
+                    },
+                    body: JSON.stringify(message),
+                    })
+                    .then((response) => {
+                        response.json()
+                    })
+                    .then((datalist) => {
+                        window.location.href = mainUrl + `eventsite/${event_id}/`;
+                    })
+                    .catch((error) => {
+                        console.error('Error:', error);
+                });
+            })
+            hideObject('final-edit-positive');
+            hideObject('edit-message-title');
+            displayObject('final-delete-positive');
+            displayObject('delete-message-title');
+            editModal.show();
         })
     }
     catch{}
@@ -566,6 +601,7 @@ function prepareEditModal(message, csrftoken, url){
 
             textarea = document.getElementById('message-body');
             textarea.value = message.content;
+            document.getElementById('message-author').innerText = '@' + message.user.username;
 
             document.getElementById('final-edit-positive').addEventListener('click', function(e){
 
@@ -573,9 +609,14 @@ function prepareEditModal(message, csrftoken, url){
 
                 requestData = message;
                 requestData.content = textarea.value;
-                delete requestData.event;
+                requestData = JSON.stringify(requestData);
                 sendRequestPUT(requestData, csrftoken, url);
             })
+            displayObject('final-edit-positive');
+            displayObject('edit-message-title');
+            hideObject('final-delete-positive');
+            hideObject('delete-message-title');
+            textarea.removeAttribute('readonly');
             editModal.show();
         })
     }
@@ -657,4 +698,38 @@ function addListenersToAllChildren(destination){
             document.getElementById('participant').value = child.id;
         });
     }
+}
+
+///////////////////////////////////////////                               Wysyłanie wiadomości                               //////////////////////////////////////////
+
+function addListenerForSendingMessages(csrftoken, url){
+
+    document.getElementById('sendMessage').addEventListener('click', function(){
+
+        var content = document.getElementById('message-send-input').value;
+        var data = {
+            'event': event_id,
+            'content': content,
+            'isSpecial': 'False',
+        }
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken,
+            },
+            redirect: 'follow',
+            body: JSON.stringify(data),
+            })
+            .then((response) => {
+                response.json()
+            })
+            .then((datalist) => {
+                window.location.href = mainUrl + `eventsite/${event_id}/`;
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+        });
+    })
 }

@@ -163,7 +163,13 @@ class MessageList(mixins.ListModelMixin,
         return self.list(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        return self.create(request, *args, **kwargs)
+
+        serializer = MessageSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(user = request.user, created = datetime.date.today())
+
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class MessageDetail(mixins.RetrieveModelMixin,
                     mixins.UpdateModelMixin,

@@ -56,10 +56,10 @@ class Invitation(models.Model):
         return f'{self.inviting} - {self.invited} - {self.event}'
 
 class Message(models.Model):
-    user = models.ForeignKey(MyUser, on_delete=models.CASCADE)
-    event = models.ForeignKey(Event, on_delete=models.CASCADE)
+    user = models.ForeignKey(MyUser, on_delete=models.CASCADE, null=True)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, null=True)
     content = models.TextField()
-    updated = models.DateTimeField(auto_now=True)
+    updated = models.DateTimeField(auto_now=True, null=True)
     created = models.DateTimeField(auto_now_add=True)
     isSpecial = models.BooleanField(null=True, default=False)
 
