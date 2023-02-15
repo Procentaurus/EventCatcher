@@ -519,7 +519,7 @@ function addListenerForMarkingMessages(message, csrftoken, url){
         target = button2;
         flag = false;
     }
-
+    try{
         target.addEventListener('click', function(e){
 
             e.preventDefault();
@@ -531,6 +531,7 @@ function addListenerForMarkingMessages(message, csrftoken, url){
 
             sendRequestPUT(data, csrftoken, url);
         })
+    }catch{}
 
 }
 function setPriorityButton(data, myID){
@@ -737,7 +738,11 @@ function addListenerForSendingMessages(csrftoken, url){
         e.preventDefault();
 
         var content = document.getElementById('message-send-input').value;
-        var isSpecial = document.getElementById('is-priority').value;
+        var isSpecial = 'False';
+        try{
+            isSpecial = document.getElementById('is-priority').value;
+        }catch{}
+
         var data = {
             'event': event_id,
             'content': content,
