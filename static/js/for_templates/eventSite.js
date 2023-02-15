@@ -499,15 +499,45 @@ function addEventListenersForMessagesButtons(datalist, csrftoken, baseUrl){
 
         prepareEditModal(message, csrftoken, url);
         prepareDeleteOfMessage(message, csrftoken, url);
-        //addListenerForMarkingMessages();
+        addListenerForMarkingMessages(message, csrftoken, url);
     }
     addListenerForSendingMessages(csrftoken, baseUrl+'/');
+}
+function addListenerForMarkingMessages(message, csrftoken, url){
+    var button1 = null, button2 = null, target, flag;
+    try{
+        button1 = document.getElementById(`message-mark-${message.id}`);
+    }catch{}
+    try{
+        button2 = document.getElementById(`message-unmark-${message.id}`);
+    }catch{}
+    if(button1 != null){
+        target = button1;
+        flag = true;
+    }
+    else{
+        target = button2;
+        flag = false;
+    }
+
+        target.addEventListener('click', function(e){
+
+            e.preventDefault();
+
+            var data = message;
+            if(flag) data.isSpecial = 'True';
+            else data.isSpecial = 'False';
+            data = JSON.stringify(data);
+
+            sendRequestPUT(data, csrftoken, url);
+        })
+
 }
 function setPriorityButton(data, myID){
     if(data.organiser.id == myID)
         return `<span class="input-group-text bg-dark text-light">Mark :</span>
                 <div class="input-group-text bg-dark">
-                    <input class="form-check-input" type="checkbox" name="id_is_open" id="id_is_open" value="True">
+                    <input class="form-check-input" type="checkbox" id="is-priority" value="True">
                 </div>`
     else return ""
 }
@@ -516,18 +546,16 @@ function createViewOfMessage(message, destination, data, myID){
     if(message.isSpecial) starCode = `<span class="fs-4">&#11088;</span>`;
 
     var buttons = "";
-    if(message.user.id == myID) buttons = `
+
+    if(data.organiser.id == myID){
+        if(message.user.id == myID) buttons += `<button type="button" id="message-edit-${message.id}" class="btn btn-outline-info btn-sm me-1">Edit message</button>`;
+        if(message.isSpecial) buttons += `<button id="message-unmark-${message.id}" class="btn btn-outline-danger btn-sm">Unset priority</button>`;
+        else buttons += `<button id="message-mark-${message.id}" class="btn btn-outline-info btn-sm">Set priority</button>`;
+        buttons += `<button id="message-delete-${message.id}" class="btn btn-outline-danger btn-sm ms-1">Delete message</button>`;
+    }
+    else if(message.user.id == myID) buttons += `
         <button type="button" id="message-edit-${message.id}" class="btn btn-outline-info btn-sm">Edit message</button>
         <button type="button" id="message-delete-${message.id}" class="btn btn-outline-danger btn-sm">Delete message</button>
-    `
-    if(data.organiser.id == myID) buttons = `
-        <button id="message-mark-${message.id}" class="btn btn-outline-info btn-sm">Set priority</button>
-        <button id="message-delete-${message.id}" class="btn btn-outline-danger btn-sm">Delete message</button>
-    `
-    if(data.organiser.id == myID && message.user.id == myID) buttons = `
-        <button type="button" id="message-edit-${message.id}" class="btn btn-outline-info btn-sm">Edit message</button>
-        <button id="message-mark-${message.id}" class="btn btn-outline-info btn-sm">Set priority</button>
-        <button id="message-delete-${message.id}" class="btn btn-outline-danger btn-sm">Delete message</button>
     `
 
     var item = `
@@ -704,13 +732,16 @@ function addListenersToAllChildren(destination){
 
 function addListenerForSendingMessages(csrftoken, url){
 
-    document.getElementById('sendMessage').addEventListener('click', function(){
+    document.getElementById('sendMessage').addEventListener('click', function(e){
+
+        e.preventDefault();
 
         var content = document.getElementById('message-send-input').value;
+        var isSpecial = document.getElementById('is-priority').value;
         var data = {
             'event': event_id,
             'content': content,
-            'isSpecial': 'False',
+            'isSpecial': isSpecial,
         }
 
         fetch(url, {
