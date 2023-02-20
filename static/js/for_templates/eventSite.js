@@ -1,17 +1,17 @@
+var mainModal = new bootstrap.Modal(document.getElementById('mainModal'));
+var supportingModal = new bootstrap.Modal(document.getElementById('supportingModal'));
+var messageModal = new bootstrap.Modal(document.getElementById('editMessageModal'));
+var userID;
+var username, eventData;
+
 takeBegginingData();
 addListenersForDsiplayingMainModal();
 addListenersForFunctionalButtons();
 
-var eventData;
-var mainModal = new bootstrap.Modal(document.getElementById('mainModal'));
-var supportingModal = new bootstrap.Modal(document.getElementById('supportingModal'));
-var editModal = new bootstrap.Modal(document.getElementById('editMessageModal'));
-var userID;
-
 function takeBegginingData(){
     var url = mainUrl + `api/events/${event_id}/`;
     try{
-        var username = document.getElementById("navusername").innerText.slice(1);
+        username = document.getElementById("navusername").innerText.slice(1);
     }
     catch(err){
         username = '';
@@ -21,34 +21,37 @@ function takeBegginingData(){
     .then((resp) => resp.json())
     .then(function(data){
         eventData = data;
-
-        // wyswietlanie tylko 1 z buttonów
-        displayProperInvitingOption(eventData);
-
-        // wyswietlanie participantsów po lewej stronie
-        displayParticipants(eventData);
-
-        //pobieranie danych podobnych eventow
-        getSimilarEvents(eventData);
-
-        //sprawdzenie czy user jest participantem i ewentualne schowanie buttona do invite'u
-        displayInviteButton(eventData);
-
-        // wyswietlanie danych eventu po srodku
-        displayEventInfo(eventData);
-
-        //wyswietla scrollable box z wiadomościami participantow
-        prepareAnnouncementsBoard(eventData);
-
-        //wyswietlanie participantsów w modalu służącym do robienia kicków          UWAGA - usuwa organisera z data.participants
-        prepareDeletingModal(eventData, username);
-
-        //przygotowanie form'u do zmiany danych event'u
-        fillFormWithEventData();
-
-        //dodanie listnere'ów w supporting modalu (invite and kick)
-        addListenersForSupportingModal(eventData);
+        buildTheViewOfSite(eventData);
     })
+}
+function buildTheViewOfSite(){
+
+    // wyswietlanie tylko 1 z buttonów obslugujących opcje invitowania
+    displayProperInvitingOption();
+
+    // wyswietlanie participantsów po lewej stronie
+    displayParticipants();
+
+    //pobieranie danych podobnych eventow
+    getSimilarEvents();
+
+    //sprawdzenie czy user jest participantem i ewentualne schowanie buttona do invite'u
+    displayInviteButton();
+
+    // wyswietlanie danych eventu po srodku
+    displayEventInfo();
+
+    //wyswietla scrollable box z wiadomościami participantow
+    prepareAnnouncementsBoard(true);
+
+    //wyswietlanie participantsów w modalu służącym do robienia kicków          UWAGA - usuwa organisera z data.participants
+    prepareDeletingModal();
+
+    //przygotowanie form'u do zmiany danych event'u
+    fillFormWithEventData();
+
+    //dodanie listnere'ów w supporting modalu (invite and kick)
+    addListenersForSupportingModal();
 }
 function addListenersForFunctionalButtons(){
     var url = mainUrl + `api/events/${event_id}/`;
@@ -162,7 +165,7 @@ function addListenersForDsiplayingMainModal(){
             userID = 0;
             document.getElementById('participant').value = "";
             document.getElementById('listOfUsers').innerHTML = "";
-            document.getElementById("messages").innerText = "";
+            document.getElementById("results").innerText = "";
         });
 
         for(let i = 0; i < 5; i++){
@@ -179,13 +182,13 @@ function addListenersForDsiplayingMainModal(){
     }
 }
 
-function addListenersForSupportingModal(data){
+function addListenersForSupportingModal(){
     try{
         const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
         user_data = document.getElementById("user-data");
 
         // dodanie listenerów do wszystkich buttonow otwierających final-kick
-        addListenersForKickingButtons(data.participants);
+        addListenersForKickingButtons(eventData.participants);
 
         // dodanie listenera otwierającego przygotowany do invite'a supporting modal
         element = document.getElementById('checkTheUser');
@@ -217,10 +220,10 @@ function addListenersForSupportingModal(data){
                     displayObject("final-invite-positive");
                     displayObject("final-invite-negative");
                     supportingModal.show();
-                    document.getElementById("messages").innerText = "";
+                    document.getElementById("results").innerText = "";
                 }
                 else{
-                    document.getElementById("messages").innerText = data.message;
+                    document.getElementById("results").innerText = data.message;
                 }
             });
         })
@@ -265,7 +268,8 @@ function addListenersForSupportingModal(data){
 }
 
 ///////////////////////                            Funkcje wykorzystywane w addListenersForSupportingModal()                           /////////////////////////////////
-function sendRequestPUT(request_data, csrftoken, url){
+
+function sendRequestPUT(request_data, csrftoken, url, makeRedirect = true){
     fetch(url, {
         method: 'PUT',
         headers: {
@@ -279,7 +283,8 @@ function sendRequestPUT(request_data, csrftoken, url){
             response.json()
         })
         .then((data) => {
-            window.location.href = mainUrl + `eventsite/${event_id}/`;
+            if(makeRedirect) window.location.href = mainUrl + `eventsite/${event_id}/`;
+            else prepareAnnouncementsBoard(false);
         })
         .catch((error) => {
             console.error('Error:', error);
@@ -328,9 +333,10 @@ function addListenersForKickingButtons(participants){
         })
     }
 }
-///////////////////////////////////////                     Funkcje wykorzystywane w takeBegginningData()                            ///////////////////////////////////
-function displayProperInvitingOption(data){
-    if(data.can_participants_invite){
+///////////////////////////////////////                     Funkcje wykorzystywane w buildTheViewOfSite()                            ///////////////////////////////////
+
+function displayProperInvitingOption(){
+    if(eventData.can_participants_invite){
         try {
             document.getElementById('enable_inviting').style.display = "none";
         }catch{}
@@ -341,10 +347,10 @@ function displayProperInvitingOption(data){
         }catch{}
     }
 }
-function displayParticipants(data){
+function displayParticipants(){
     var destination = document.getElementById('participants');
 
-    data.participants.sort((a, b) => {
+    eventData.participants.sort((a, b) => {
         let fa = a.username.toLowerCase(), fb = b.username.toLowerCase();
     
         if (fa < fb) return -1;
@@ -352,7 +358,7 @@ function displayParticipants(data){
         return 0;
     });
     
-    for(participant of data.participants){
+    for(participant of eventData.participants){
         let x = `
             <div class="text-center bg-light rounded my-1 me-0">
                 <a class="nav-link p-1" href="${mainUrl}userprofile/${participant.id}">
@@ -364,28 +370,28 @@ function displayParticipants(data){
         destination.innerHTML += x;
     }
 }
-function displayEventInfo(data){
+function displayEventInfo(){
     destination = document.getElementById('main');
     destination.innerHTML += `
-        <h1 class="display-1 fw-bold text-center">${data.name}</h1>
+        <h1 class="display-1 fw-bold text-center">${eventData.name}</h1>
         <div class="d-flex mt-3">
-            <img src="${data.image}" class="banner_max" />
+            <img src="${eventData.image}" class="banner_max" />
         </div>
-        <h3 class="text-center my-4">On the ${convertDate(data.start_date_time)}  to  ${convertDate(data.end_date_time)}</h3>
-        <p class="text-center mt-2">${data.description}</p>
+        <h3 class="text-center my-4">On the ${convertDate(eventData.start_date_time)}  to  ${convertDate(eventData.end_date_time)}</h3>
+        <p class="text-center mt-2">${eventData.description}</p>
     `
 }
-function prepareDeletingModal(data, username){
+function prepareDeletingModal(){
     destination = document.getElementById('users_to_kick');
 
-    for( var i = 0; i < data.participants.length; i++){ 
-        if ( data.participants[i].username == username) data.participants.splice(i, 1); 
+    for( var i = 0; i < eventData.participants.length; i++){ 
+        if ( eventData.participants[i].username == username) eventData.participants.splice(i, 1); 
     }
 
-    for(let x = 0; x < data.participants.length; x+=3){
+    for(let x = 0; x < eventData.participants.length; x+=3){
         let div = `<div class="d-flex justify-content-center mb-2">`;
         for(let k=0;k<3;k++){
-            let participant = data.participants[x+k];
+            let participant = eventData.participants[x+k];
             if(participant != null){
                 div += `
                     <button id="kick_${participant.id}" class="btn btn-light mx-1 p-1" href="${mainUrl}userprofile/${participant.id}">
@@ -410,22 +416,22 @@ function fillFormWithEventData(){
     document.getElementById('id_description').value = eventData.description;
 }
 
-function displayInviteButton(data){
+function displayInviteButton(){
     const myID = JSON.parse(document.getElementById('mydata').textContent);
 
-    if(data.can_participants_invite == false){
-        if(data.organiser.id != myID){
+    if(eventData.can_participants_invite == false){
+        if(eventData.organiser.id != myID){
             hideObject('invite_for_event_exterior');
             return;
         }
     }
 
-    if(!checkIfParticipant(data.participants)) hideObject('invite_for_event_exterior');
+    if(!checkIfParticipant(eventData.participants)) hideObject('invite_for_event_exterior');
 }
-function getSimilarEvents(data){
+function getSimilarEvents(){
     const myID = JSON.parse(document.getElementById('mydata').textContent);
     var url = `http://127.0.0.1:8000/api/events?`;
-    url += `counter=10&category=${data.category}&organiserneg=${myID}&idneg=${data.id}`;
+    url += `counter=10&category=${eventData.category}&organiserneg=${myID}&idneg=${eventData.id}`;
     fetch(url)
     .then((resp) => resp.json())
     .then(function(datalist){
@@ -461,47 +467,54 @@ function getSimilarEvents(data){
     })
 }
 
-function prepareAnnouncementsBoard(data){
+function prepareAnnouncementsBoard(flag){
     var baseUrl = mainUrl + `api/messages`;
-    var url = baseUrl + `?event=${data.id}`;
+    var url = baseUrl + `?event=${eventData.id}`;
     const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
     const myID = JSON.parse(document.getElementById('mydata').textContent);
 
     fetch(url)
     .then((resp) => resp.json())
     .then(function(datalist){
-
-        destination = document.getElementById('main');
-        destination.innerHTML += `
-            <h2 class="fw-bold ms-2 mb-3 mt-5"> Announcements and Questions :</h2>
-            <div id="messages" class="overflow-auto p-4 rounded shadow bg-dark" style="max-height: 35em;">
-                <div class="input-group mb-2 p-2">
-                    <input type="text" class="form-control text-light bg-dark" id="message-send-input" placeholder="Write your message">
-                    ${setPriorityButton(data, myID)}
-                    <button class="btn btn-outline-light" type="button" id="sendMessage">Send message</button>
-                </div>
-        `
-
-        if(datalist.length > 0){
-
-            destination = document.getElementById('messages');
-            for(var message of datalist){
-                createViewOfMessage(message, destination, data, myID)
-            }
+        if(flag){
+            buildTheBaseOfAnnouncementsBoard(myID, datalist);
+            addListenerForSendingMessages(csrftoken, baseUrl+'/');
         }
-        destination.innerHTML += `</div>`;
+        buildTheViewOfMessages(datalist, myID);
         addEventListenersForMessagesButtons(datalist, csrftoken, baseUrl);
     })
+}
+function buildTheBaseOfAnnouncementsBoard(myID, datalist){
+    destination = document.getElementById('main');
+    destination.innerHTML += `
+        <h2 class="fw-bold ms-2 mb-3 mt-5"> Announcements and Questions :</h2>
+        <div id="messages" class="overflow-auto p-4 rounded shadow bg-dark" style="max-height: 35em;">
+            <div class="input-group mb-2 p-2">
+                <input type="text" class="form-control text-light bg-dark" id="message-send-input" placeholder="Write your message">
+                ${setPriorityButton(myID)}
+                <button class="btn btn-outline-light" type="button" id="sendMessage">Send message</button>
+            </div>
+            <div id="messages-body"></div>
+        </div>
+    `
+}
+function buildTheViewOfMessages(datalist, myID){
+    if(datalist.length > 0){
+        destination = document.getElementById('messages-body');
+        destination.innerHTML = "";
+        for(var message of datalist){
+            createViewOfMessage(message, destination, myID)
+        }
+    }
 }
 function addEventListenersForMessagesButtons(datalist, csrftoken, baseUrl){
     for(var message of datalist){
         url = baseUrl + `/${message.id}/`;
 
-        prepareEditModal(message, csrftoken, url);
+        prepareEditOfMessage(message, csrftoken, url);
         prepareDeleteOfMessage(message, csrftoken, url);
         addListenerForMarkingMessages(message, csrftoken, url);
     }
-    addListenerForSendingMessages(csrftoken, baseUrl+'/');
 }
 function addListenerForMarkingMessages(message, csrftoken, url){
     var button1 = null, button2 = null, target, flag;
@@ -529,26 +542,26 @@ function addListenerForMarkingMessages(message, csrftoken, url){
             else data.isSpecial = 'False';
             data = JSON.stringify(data);
 
-            sendRequestPUT(data, csrftoken, url);
+            sendRequestPUT(data, csrftoken, url, false);
         })
     }catch{}
 
 }
-function setPriorityButton(data, myID){
-    if(data.organiser.id == myID)
+function setPriorityButton(myID){
+    if(eventData.organiser.id == myID)
         return `<span class="input-group-text bg-dark text-light">Mark :</span>
                 <div class="input-group-text bg-dark">
                     <input class="form-check-input" type="checkbox" id="is-priority" value="True">
                 </div>`
     else return ""
 }
-function createViewOfMessage(message, destination, data, myID){
+function createViewOfMessage(message, destination, myID){
     var starCode = "";
     if(message.isSpecial) starCode = `<span class="fs-4">&#11088;</span>`;
 
     var buttons = "";
 
-    if(data.organiser.id == myID){
+    if(eventData.organiser.id == myID){
         if(message.user.id == myID) buttons += `<button type="button" id="message-edit-${message.id}" class="btn btn-outline-info btn-sm me-1">Edit message</button>`;
         if(message.isSpecial) buttons += `<button id="message-unmark-${message.id}" class="btn btn-outline-danger btn-sm">Unset priority</button>`;
         else buttons += `<button id="message-mark-${message.id}" class="btn btn-outline-info btn-sm">Set priority</button>`;
@@ -560,7 +573,7 @@ function createViewOfMessage(message, destination, data, myID){
     `
 
     var item = `
-        <div class="p-2 text-light mb-2">
+        <div class="p-2 text-light mb-2" id="message-body-${message.id}">
             <span class="fs-4 fw-bold">@${message.user.username}</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${convertDate(message.updated)}
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${starCode}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${buttons}<br>
             ${message.content}<br>
@@ -602,11 +615,10 @@ function prepareDeleteOfMessage(message, csrftoken, url){
                     },
                     body: JSON.stringify(message),
                     })
-                    .then((response) => {
-                        response.json()
-                    })
+                    .then((response) => response.json())
                     .then((datalist) => {
-                        window.location.href = mainUrl + `eventsite/${event_id}/`;
+                        prepareAnnouncementsBoard(false);
+                        messageModal.hide();
                     })
                     .catch((error) => {
                         console.error('Error:', error);
@@ -616,13 +628,13 @@ function prepareDeleteOfMessage(message, csrftoken, url){
             hideObject('edit-message-title');
             displayObject('final-delete-positive');
             displayObject('delete-message-title');
-            editModal.show();
+            messageModal.show();
         })
     }
     catch{}
 }
 
-function prepareEditModal(message, csrftoken, url){
+function prepareEditOfMessage(message, csrftoken, url){
     try{
         element = document.getElementById(`message-edit-${message.id}`);
         element.addEventListener('click', function(e){
@@ -639,14 +651,15 @@ function prepareEditModal(message, csrftoken, url){
                 requestData = message;
                 requestData.content = textarea.value;
                 requestData = JSON.stringify(requestData);
-                sendRequestPUT(requestData, csrftoken, url);
+                sendRequestPUT(requestData, csrftoken, url, false);
+                messageModal.hide();
             })
             displayObject('final-edit-positive');
             displayObject('edit-message-title');
             hideObject('final-delete-positive');
             hideObject('delete-message-title');
             textarea.removeAttribute('readonly');
-            editModal.show();
+            messageModal.show();
         })
     }
     catch{
@@ -655,6 +668,7 @@ function prepareEditModal(message, csrftoken, url){
 }
 
 ////////////////////////////////                         Funkcje uzywane w addListenersForFunctionalButtons()                        ///////////////////////////////////
+
 function addListenerForChangingEventData(csrftoken, url){
     element = document.getElementById('event-specifics-interior');
     element.addEventListener('click', function(e){
@@ -733,19 +747,21 @@ function addListenersToAllChildren(destination){
 
 function addListenerForSendingMessages(csrftoken, url){
 
-    document.getElementById('sendMessage').addEventListener('click', function(e){
+    button = document.getElementById('sendMessage');
+    button.addEventListener('click', function(e){
 
         e.preventDefault();
 
-        var content = document.getElementById('message-send-input').value;
+        var field = document.getElementById('message-send-input');
         var isSpecial = 'False';
         try{
-            isSpecial = document.getElementById('is-priority').value;
+            flag = document.getElementById('is-priority').checked;
+            if(flag) isSpecial = 'True';
         }catch{}
 
         var data = {
             'event': event_id,
-            'content': content,
+            'content': field.value,
             'isSpecial': isSpecial,
         }
 
@@ -755,14 +771,14 @@ function addListenerForSendingMessages(csrftoken, url){
                 'Content-Type': 'application/json',
                 'X-CSRFToken': csrftoken,
             },
-            redirect: 'follow',
             body: JSON.stringify(data),
             })
             .then((response) => {
                 response.json()
             })
             .then((datalist) => {
-                window.location.href = mainUrl + `eventsite/${event_id}/`;
+                prepareAnnouncementsBoard(false);
+                field.value = "";
             })
             .catch((error) => {
                 console.error('Error:', error);

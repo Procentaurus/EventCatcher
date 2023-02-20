@@ -16,7 +16,7 @@
     background-repeat: no-repeat;
 }
 .eventback{
-    background-image: linear-gradient(to right, #b8e3fc ,#dcadf7, #b8e3fc);
+    background-image: linear-gradient(to right, #4cbdff ,#d3d3d3, #4cbdff);
 }
 #logofont{
     font-family:'Times New Roman', Times, serif;
@@ -30,7 +30,7 @@
 }
 body{
     background-color: white;
-    background-image: linear-gradient(to right, #cbce38 ,#fff8e0, #a84b20);
+    background-image: linear-gradient(to right,  #f2fd50 ,#d3d3d3, #f2fd50);
 }
 .my_card{
     position: relative;

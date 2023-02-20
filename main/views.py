@@ -230,6 +230,9 @@ def updateAvatar(request, pk):
 
 def eventSite(request, pk):
 
+    if not request.user.is_authenticated:
+        return redirect("home")
+
     form = CreateEventForm()
     try:
         event = Event.objects.get(id=pk)

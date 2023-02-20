@@ -64,7 +64,7 @@ class Message(models.Model):
     isSpecial = models.BooleanField(null=True, default=False)
 
     class Meta:
-        ordering = ['-isSpecial','-updated', '-created']
+        ordering = ['-isSpecial', '-created']
 
     def __str__(self):
         if len(self.content) > 100:

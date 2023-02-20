@@ -9,9 +9,8 @@ function fetchData(url, destination, username){
 
             var myBadge = "";
 
-            if(datalist[i].organiser.username == username){
-                myBadge = `<span class="badge rounded-pill bg-info position-absolute top-0 end-0 mt-1 me-1 fs-5 text-dark">Your event</span>`
-            }
+            if(datalist[i].organiser.username == username)
+                myBadge = `<span class="badge rounded-pill bg-info position-absolute top-0 end-0 mt-1 me-1 fs-5 text-dark">Your event</span>`;
             for(let user of datalist[i].organiser.friends){
                 if(user.username == username){
                     myBadge = `<span class="badge rounded-pill bg-success position-absolute top-0 end-0 mt-1 me-1 fs-5 text-dark">Your friend's event</span>`;
