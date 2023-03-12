@@ -21,7 +21,7 @@ function takeBegginingData(){
     .then((resp) => resp.json())
     .then(function(data){
         eventData = data;
-        buildTheViewOfSite(eventData);
+        buildTheViewOfSite();
     })
 }
 function buildTheViewOfSite(){
