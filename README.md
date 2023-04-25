@@ -16,3 +16,22 @@ Contains:
 # folder api
 Contains:
   - setup fort rest api that handles events, invitations and messages
+
+# How it looks like
+
+![alt text](https://github.com/Procentaurus/EventCatcher/blob/master/Photos/1.png)
+
+
+![alt text](https://github.com/Procentaurus/EventCatcher/blob/master/Photos/2.png)
+
+
+![alt text](https://github.com/Procentaurus/EventCatcher/blob/master/Photos/3.png)
+
+
+![alt text](https://github.com/Procentaurus/EventCatcher/blob/master/Photos/4.png)
+
+
+![alt text](https://github.com/Procentaurus/EventCatcher/blob/master/Photos/5.png)
+
+
+![alt text](https://github.com/Procentaurus/EventCatcher/blob/master/Photos/6.png)
